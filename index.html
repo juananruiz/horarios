@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Horarios Escolares</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 Gestor de Horarios Escolares</h1>
+        
+        <div class="controls">
+            <select id="groupFilter">
+                <option value="">Todos los grupos</option>
+            </select>
+            <button id="checkConflictsBtn">🔍 Detectar Conflictos</button>
+            <button id="clearSchedulesBtn">🗑️ Limpiar Todo</button>
+            <button id="exportBtn">💾 Exportar</button>
+            <button id="importBtn">📂 Importar</button>
+            <input type="file" id="importFile" style="display:none" accept=".json">
+            <a href="horario-profesores.html" class="button-link">🧑‍🏫 Ver por Profesor</a>
+            <a href="gestion-datos.html" class="button-link">✍️ Gestionar Datos</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalClasses">0</div>
+                <div class="stat-label">Clases Asignadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="conflictCount">0</div>
+                <div class="stat-label">Conflictos Detectados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionRate">0%</div>
+                <div class="stat-label">Progreso Completado</div>
+            </div>
+        </div>
+
+        <div class="conflicts-panel" id="conflictsPanel">
+            <h3>⚠️ Conflictos Detectados:</h3>
+            <div id="conflictsList"></div>
+        </div>
+
+        <div class="schedule-container" id="scheduleContainer">
+        </div>
+    </div>
+
+    <!-- Modal para seleccionar asignatura -->
+    <div class="subject-selector" id="subjectSelector">
+        <h4>Seleccionar Asignatura</h4>
+        <select id="subjectSelect">
+            <option value="">-- Seleccionar --</option>
+        </select>
+        <select id="durationSelect">
+            <option value="0.75">45 min (0.75h)</option>
+            <option value="1" selected>60 min (1h)</option>
+            <option value="1.5">90 min (1.5h)</option>
+        </select>
+        <div class="modal-buttons">
+            <button id="assignSubjectBtn">✅ Asignar</button>
+            <button id="removeSubjectBtn">❌ Quitar</button>
+            <button id="cancelBtn">Cancelar</button>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+    <script>window.addEventListener('load', initIndexPage);</script>
+</body>
+</html>
