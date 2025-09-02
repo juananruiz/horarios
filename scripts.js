@@ -1,108 +1,25 @@
-// Datos de la aplicación
-const initialGroups = {
-    "Primero A": {
-        tutor: "Manuel Martín Gómez",
-        subjects: {
-            "Lengua": { hours: 5.5, teacher: "Manuel Martín Gómez" },
-            "Mates": { hours: 5.5, teacher: "Manuel Martín Gómez" },
-            "Cono": { hours: 2.5, teacher: "Manuel Martín Gómez" },
-            "At. Edu.": { hours: 1.5, teacher: "Manuel Martín Gómez" },
-            "Plástica": { hours: 1.25, teacher: "Manuel Martín Gómez" },
-            "Inglés": { hours: 2.5, teacher: "Cristina Sánchez" },
-            "Ed. Física": { hours: 3, teacher: "Profesor CAR" },
-            "Religión": { hours: 1.5, teacher: "Mª Flor Martín Gómez" },
-            "Música": { hours: 0.75, teacher: "Inmaculada Ruiz" }
-        }
-    },
-    "Primero B": {
-        tutor: "Ana Mª Ariza",
-        subjects: {
-            "Lengua": { hours: 5.5, teacher: "Ana Mª Ariza" },
-            "Mates": { hours: 5.5, teacher: "Ana Mª Ariza" },
-            "Cono": { hours: 2.5, teacher: "Ana Mª Ariza" },
-            "At. Edu.": { hours: 1.5, teacher: "Ana Mª Ariza" },
-            "Plástica": { hours: 1.25, teacher: "Ana Mª Ariza" },
-            "Inglés": { hours: 2.5, teacher: "Cristina Sánchez" },
-            "Ed. Física": { hours: 3, teacher: "Profesor CAR" },
-            "Religión": { hours: 1.5, teacher: "Mª Flor Martín Gómez" },
-            "Música": { hours: 0.75, teacher: "Inmaculada Ruiz" }
-        }
-    },
-    "Segundo A": {
-        tutor: "Carmen Pareja",
-        subjects: {
-            "Lengua": { hours: 5.75, teacher: "Carmen Pareja" },
-            "Mates": { hours: 5.75, teacher: "Carmen Pareja" },
-            "Cono": { hours: 2.5, teacher: "Carmen Pareja" },
-            "At. Edu.": { hours: 1.5, teacher: "Carmen Pareja" },
-            "Plástica": { hours: 0.75, teacher: "Carmen Pareja" },
-            "Inglés": { hours: 2.5, teacher: "Ana Mª Fernández" },
-            "Ed. Física": { hours: 3, teacher: "Profesor CAR" },
-            "Religión": { hours: 1.5, teacher: "Mª Flor Martín Gómez" },
-            "Música": { hours: 0.75, teacher: "Inmaculada Ruiz" }
-        }
-    },
-    "Segundo B": {
-        tutor: "Mª José Curado",
-        subjects: {
-            "Lengua": { hours: 5.75, teacher: "Mª José Curado" },
-            "Mates": { hours: 5.75, teacher: "Mª José Curado" },
-            "Cono": { hours: 2.5, teacher: "Mª José Curado" },
-            "At. Edu.": { hours: 1.5, teacher: "Mª José Curado" },
-            "Plástica": { hours: 0.75, teacher: "Mª José Curado" },
-            "Inglés": { hours: 2.5, teacher: "Ana Mª Fernández" },
-            "Ed. Física": { hours: 3, teacher: "Profesor CAR" },
-            "Religión": { hours: 1.5, teacher: "Mª Flor Martín Gómez" },
-            "Música": { hours: 0.75, teacher: "Inmaculada Ruiz" }
-        }
-    },
-    "Tercero": {
-        tutor: "Jerónimo Rolán",
-        subjects: {
-            "Lengua": { hours: 5.5, teacher: "Jerónimo Rolán" },
-            "Mates": { hours: 5.5, teacher: "Jerónimo Rolán" },
-            "At. Edu": { hours: 1.5, teacher: "Jerónimo Rolán" },
-            "Ed. Física": { hours: 3, teacher: "Jerónimo Rolán" },
-            "Cono": { hours: 2.5, teacher: "Mª José Curado" },
-            "Inglés": { hours: 2.5, teacher: "Jesús" },
-            "Religión": { hours: 1.5, teacher: "Mª Flor Martín Gómez" },
-            "Música": { hours: 0.75, teacher: "Inmaculada Ruiz" }
-        }
-    }
-};
-
-const initialTeachers = ["Manuel Martín Gómez", "Cristina Sánchez", "Profesor CAR", "Mª Flor Martín Gómez", "Inmaculada Ruiz", "Ana Mª Ariza", "Carmen Pareja", "Ana Mª Fernández", "Mª José Curado", "Jerónimo Rolán", "Jesús"];
-
 let groups = {};
 let teachers = [];
 
+function loadGroupsData() {
+    const storedGroups = localStorage.getItem('horariosGroups');
+    groups = storedGroups ? JSON.parse(storedGroups) : {};
+}
+
+function saveGroupsData() {
+    localStorage.setItem('horariosGroups', JSON.stringify(groups));
+}
+
 function loadTeachersData() {
     const storedTeachers = localStorage.getItem('horariosTeachers');
-    if (storedTeachers) {
-        teachers = JSON.parse(storedTeachers);
-    } else {
-        teachers = [...new Set(initialTeachers)].sort(); // Asegurar únicos y ordenados
-        saveTeachersData();
-    }
+    teachers = storedTeachers ? JSON.parse(storedTeachers) : [];
 }
 
 function saveTeachersData() {
     localStorage.setItem('horariosTeachers', JSON.stringify(teachers));
 }
 
-function loadGroupsData() {
-    const storedGroups = localStorage.getItem('horariosGroups');
-    if (storedGroups) {
-        groups = JSON.parse(storedGroups);
-    } else {
-        groups = initialGroups;
-        saveGroupsData();
-    }
-}
 
-function saveGroupsData() {
-    localStorage.setItem('horariosGroups', JSON.stringify(groups));
-}
 
 function generateTimeSlots(start, end, interval) {
     const slots = [];
@@ -126,6 +43,12 @@ function initializeAppData() {
     loadGroupsData();
     loadTeachersData();
     loadSchedulesFromStorage();
+
+    // Reconciliación de datos: asegurar que cada grupo tiene un horario.
+    Object.keys(groups).forEach(groupName => {
+        ensureScheduleExistsForGroup(groupName);
+    });
+    saveSchedulesToStorage(); // Guardar por si se ha creado algún horario para un grupo que no lo tenía
 }
 
 // --- Persistencia de Datos ---
@@ -224,12 +147,15 @@ function ensureScheduleExistsForGroup(groupName) {
 
 function populateGroupFilter() {
     const filter = document.getElementById('groupFilter');
-    Object.keys(groups).forEach(group => {
+    const currentValue = filter.value;
+    filter.innerHTML = '<option value="">Todos los grupos</option>'; // Limpiar opciones anteriores
+    Object.keys(groups).sort().forEach(group => {
         const option = document.createElement('option');
         option.value = group;
         option.textContent = group;
         filter.appendChild(option);
     });
+    filter.value = currentValue;
 }
 
 function renderSchedules() {
@@ -246,6 +172,29 @@ function renderSchedules() {
         const title = document.createElement('div');
         title.className = 'group-title';
         title.innerHTML = `${groupName}<br><small>Tutor: ${groups[groupName].tutor}</small>`;
+        
+        const assignedHours = calculateAssignedHours(groupName);
+        const totalRequiredHours = calculateTotalRequiredHours(groupName);
+        
+        let remainingHoursHtml = '';
+        const subjectsWithRemaining = [];
+
+        Object.keys(totalRequiredHours).forEach(subject => {
+            const assigned = assignedHours[subject] || 0;
+            const required = totalRequiredHours[subject];
+            const remaining = required - assigned;
+            if (remaining > 0) {
+                subjectsWithRemaining.push(`${subject}: ${remaining}h`);
+            }
+        });
+
+        if (subjectsWithRemaining.length > 0) {
+            remainingHoursHtml = `<div class="remaining-hours">Faltan: ${subjectsWithRemaining.join(', ')}</div>`;
+        } else {
+            remainingHoursHtml = `<div class="remaining-hours">Todas las horas asignadas</div>`;
+        }
+
+        title.innerHTML += remainingHoursHtml;
         
         const table = document.createElement('table');
         table.className = 'schedule-table';
@@ -575,6 +524,8 @@ function updateStats() {
                 const schedule = schedules[group][day][time];
                 if (schedule && schedule.isStart) {
                     totalAssigned += schedule.duration || 1;
+                } else if (schedule && schedule.isContinuation) {
+                    // Las continuaciones no añaden horas al total asignado
                 }
             });
         });
@@ -586,14 +537,33 @@ function updateStats() {
     document.getElementById('completionRate').textContent = completionRate + '%';
 }
 
-function clearAllSchedules() {
-    if (confirm('¿Estás seguro de que quieres limpiar todos los horarios?')) {
-        initializeSchedules();
-        saveSchedulesToStorage();
-        renderSchedules();
-        updateStats();
-    }
+function calculateAssignedHours(groupName) {
+    const assigned = {};
+    if (!schedules[groupName]) return assigned; // No schedule for this group yet
+
+    days.forEach(day => {
+        timeIntervals.forEach(time => {
+            const scheduleItem = schedules[groupName][day][time];
+            if (scheduleItem && scheduleItem.isStart) {
+                const subject = scheduleItem.subject;
+                const duration = scheduleItem.duration || 1;
+                assigned[subject] = (assigned[subject] || 0) + duration;
+            }
+        });
+    });
+    return assigned;
 }
+
+function calculateTotalRequiredHours(groupName) {
+    const required = {};
+    const groupSubjects = groups[groupName] ? groups[groupName].subjects : {};
+    Object.entries(groupSubjects).forEach(([subjectName, details]) => {
+        required[subjectName] = details.hours;
+    });
+    return required;
+}
+
+
 
 function exportData() {
     const data = {
@@ -620,7 +590,7 @@ function importData() {
 function addEventListeners() {
     document.getElementById('groupFilter').addEventListener('change', renderSchedules);
     document.getElementById('checkConflictsBtn').addEventListener('click', checkAllConflicts);
-    document.getElementById('clearSchedulesBtn').addEventListener('click', clearAllSchedules);
+    
     document.getElementById('exportBtn').addEventListener('click', exportData);
     document.getElementById('importBtn').addEventListener('click', importData);
 
