@@ -149,7 +149,7 @@ function populateGroupFilter() {
     const filter = document.getElementById('groupFilter');
     const currentValue = filter.value;
     filter.innerHTML = '<option value="">Todos los grupos</option>'; // Limpiar opciones anteriores
-    Object.keys(groups).sort().forEach(group => {
+    Object.keys(groups).sort((a, b) => (groups[a].orden || 0) - (groups[b].orden || 0)).forEach(group => {
         const option = document.createElement('option');
         option.value = group;
         option.textContent = group;
@@ -163,7 +163,8 @@ function renderSchedules() {
     const filter = document.getElementById('groupFilter').value;
     container.innerHTML = '';
 
-    const groupsToShow = filter ? [filter] : Object.keys(groups);
+    const sortedGroups = Object.keys(groups).sort((a, b) => (groups[a].orden || 0) - (groups[b].orden || 0));
+    const groupsToShow = filter ? [filter] : sortedGroups;
     
     groupsToShow.forEach(groupName => {
         const groupDiv = document.createElement('div');
@@ -594,7 +595,7 @@ function importData() {
 
 function addEventListeners() {
     document.getElementById('groupFilter').addEventListener('change', renderSchedules);
-    document.getElementById('checkConflictsBtn').addEventListener('click', checkAllConflicts);
+    // document.getElementById('checkConflictsBtn').addEventListener('click', checkAllConflicts);
     
     document.getElementById('exportBtn').addEventListener('click', exportData);
     document.getElementById('importBtn').addEventListener('click', importData);

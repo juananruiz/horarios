@@ -17,6 +17,7 @@ function initializeManagementPage() {
     const detailsTitle = document.getElementById('details-title');
     const groupForm = document.getElementById('group-form');
     const groupNameInput = document.getElementById('group-name');
+    const groupOrderInput = document.getElementById('group-order');
     const groupTutorSelect = document.getElementById('group-tutor');
     const subjectsTbody = document.getElementById('subjects-tbody');
     const newSubjectNameInput = document.getElementById('new-subject-name');
@@ -173,7 +174,7 @@ function initializeManagementPage() {
 
     function renderGroupList() {
         groupListDiv.innerHTML = '';
-        Object.keys(groups).sort().forEach(groupKey => {
+        Object.keys(groups).sort((a, b) => (groups[a].orden || 0) - (groups[b].orden || 0)).forEach(groupKey => {
             const item = document.createElement('div');
             item.className = 'list-item';
             item.textContent = groupKey;
@@ -211,6 +212,7 @@ function initializeManagementPage() {
         groupDetailsContainer.style.display = 'block';
         detailsTitle.textContent = `Editando: ${groupKey}`;
         groupNameInput.value = groupKey;
+        groupOrderInput.value = group.orden || 0;
         populateTeacherSelects();
         groupTutorSelect.value = group.tutor;
 
@@ -245,6 +247,7 @@ function initializeManagementPage() {
         groupDetailsContainer.style.display = 'block';
         detailsTitle.textContent = 'Nuevo Grupo';
         groupForm.reset();
+        groupOrderInput.value = 0;
         subjectsTbody.innerHTML = '';
         populateTeacherSelects();
         renderGroupList();
@@ -310,7 +313,8 @@ function initializeManagementPage() {
 
         const groupData = {
             tutor: groupTutorSelect.value,
-            subjects: subjects
+            subjects: subjects,
+            orden: parseInt(groupOrderInput.value, 10) || 0
         };
 
         // Lógica para manejar el horario al crear/renombrar
