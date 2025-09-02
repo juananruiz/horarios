@@ -177,19 +177,24 @@ function renderSchedules() {
         const totalRequiredHours = calculateTotalRequiredHours(groupName);
         
         let remainingHoursHtml = '';
-        const subjectsWithRemaining = [];
+        const statusLines = [];
+        let hasSurplus = false;
 
         Object.keys(totalRequiredHours).forEach(subject => {
             const assigned = assignedHours[subject] || 0;
             const required = totalRequiredHours[subject];
             const remaining = required - assigned;
+            
             if (remaining > 0) {
-                subjectsWithRemaining.push(`${subject}: ${remaining}h`);
+                statusLines.push(`<span>${subject}: Faltan ${remaining}h</span>`);
+            } else if (remaining < 0) {
+                statusLines.push(`<span class="surplus-subject">${subject}: Sobran ${Math.abs(remaining)}h</span>`);
+                hasSurplus = true;
             }
         });
 
-        if (subjectsWithRemaining.length > 0) {
-            remainingHoursHtml = `<div class="remaining-hours">Faltan: ${subjectsWithRemaining.join(', ')}</div>`;
+        if (statusLines.length > 0) {
+            remainingHoursHtml = `<div class="remaining-hours ${hasSurplus ? 'has-surplus' : ''}">${statusLines.join('<br>')}</div>`;
         } else {
             remainingHoursHtml = `<div class="remaining-hours">Todas las horas asignadas</div>`;
         }

@@ -254,3 +254,20 @@ a.button-link:hover {
     font-size: 12px;
     opacity: 0.9;
 }
+
+.remaining-hours {
+    font-size: 12px;
+    font-weight: normal;
+    color: #555;
+    margin-top: 5px;
+}
+
+.remaining-hours.surplus-hours {
+    color: #dc3545; /* Rojo para horas sobrantes */
+    font-weight: bold;
+}
+
+.surplus-subject {
+    color: #dc3545; /* Rojo para asignaturas individuales con horas sobrantes */
+    font-weight: bold;
+}
