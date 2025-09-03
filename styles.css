@@ -279,8 +279,10 @@ a.button-link:hover {
 
 .recreo {
     background-color: var(--recreo-bg) !important;
-    font-weight: 500;
+    font-weight: 700;
     color: var(--recreo-text);
+    border-top: 2px solid var(--md-outline);
+    border-bottom: 2px solid var(--md-outline);
 }
 
 .class-slot {

@@ -468,19 +468,27 @@ function checkAllConflicts() {
 function displayConflicts(conflicts) {
     const panel = document.getElementById('conflictsPanel');
     const list = document.getElementById('conflictsList');
-    
+    const conflictCountEl = document.getElementById('conflictCount');
+
     const uniqueConflicts = Array.from(new Set(conflicts.map(c => JSON.stringify(c)))).map(s => JSON.parse(s));
-    
-    document.getElementById('conflictCount').textContent = uniqueConflicts.length;
-    
+
+    if (conflictCountEl) {
+        conflictCountEl.textContent = uniqueConflicts.length;
+    }
+
+    // Si el panel de conflictos no existe en la página actual, no continuar.
+    if (!panel || !list) {
+        return;
+    }
+
     if (uniqueConflicts.length === 0) {
         panel.classList.remove('show');
         return;
     }
-    
+
     panel.classList.add('show');
     list.innerHTML = '';
-    
+
     uniqueConflicts.forEach(conflict => {
         const item = document.createElement('div');
         item.className = 'conflict-item';
@@ -495,20 +503,34 @@ function displayConflicts(conflicts) {
 }
 
 function highlightConflicts(conflicts) {
-    document.querySelectorAll('.class-slot.conflict').forEach(cell => {
+    // Limpiar los conflictos de ambas vistas para evitar inconsistencias
+    document.querySelectorAll('.class-slot.conflict, .teacher-schedule-compact td.conflict').forEach(cell => {
         cell.classList.remove('conflict');
     });
-    
+
+    // Determinar en qué vista estamos. La vista de grupos tiene el filtro.
+    const isGroupView = !!document.getElementById('groupFilter');
+
     conflicts.forEach(conflict => {
-        const [day, time] = conflict.time.split('-', 2);
+        const [day, timeKey] = conflict.time.split('-', 2);
+        
         conflict.groups.forEach(groupInfo => {
-            let startTime = time;
-            let schedule = schedules[groupInfo.group][day][time];
+            let startTime = timeKey;
+            const schedule = schedules[groupInfo.group][day][timeKey];
             if (schedule && schedule.isContinuation) {
                 startTime = schedule.startTime;
             }
 
-            const cell = document.querySelector(`.class-slot[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"]`);
+            let cell;
+            if (isGroupView) {
+                const cellSelector = `.class-slot[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"]`;
+                cell = document.querySelector(cellSelector);
+            } else { // Asumimos que es la vista de profesor
+                const teacher = conflict.teacher;
+                const cellSelector = `td[data-teacher="${teacher}"][data-day="${day}"][data-time="${startTime}"]`;
+                cell = document.querySelector(cellSelector);
+            }
+            
             if (cell) {
                 cell.classList.add('conflict');
             }
@@ -517,30 +539,41 @@ function highlightConflicts(conflicts) {
 }
 
 function updateStats() {
+    const totalClassesEl = document.getElementById('totalClasses');
+    const completionRateEl = document.getElementById('completionRate');
+    const conflictCountEl = document.getElementById('conflictCount');
+
+    // Si no existen los elementos de estadísticas, no hacer nada.
+    if (!totalClassesEl || !completionRateEl || !conflictCountEl) {
+        return;
+    }
+
     let totalAssigned = 0;
     let totalRequired = 0;
-    
+
     Object.keys(groups).forEach(group => {
-        Object.keys(groups[group].subjects).forEach(subject => {
-            totalRequired += groups[group].subjects[subject].hours;
-        });
-        
-        Object.keys(schedules[group]).forEach(day => {
-            Object.keys(schedules[group][day]).forEach(time => {
-                const schedule = schedules[group][day][time];
-                if (schedule && schedule.isStart) {
-                    totalAssigned += schedule.duration || 1;
-                } else if (schedule && schedule.isContinuation) {
-                    // Las continuaciones no añaden horas al total asignado
-                }
+        if (groups[group] && groups[group].subjects) {
+            Object.keys(groups[group].subjects).forEach(subject => {
+                totalRequired += groups[group].subjects[subject].hours;
             });
-        });
+        }
+
+        if (schedules[group]) {
+            Object.keys(schedules[group]).forEach(day => {
+                Object.keys(schedules[group][day]).forEach(time => {
+                    const schedule = schedules[group][day][time];
+                    if (schedule && schedule.isStart) {
+                        totalAssigned += schedule.duration || 1;
+                    }
+                });
+            });
+        }
     });
-    
-    document.getElementById('totalClasses').textContent = Math.round(totalAssigned * 100) / 100;
-    
+
+    totalClassesEl.textContent = Math.round(totalAssigned * 100) / 100;
+
     const completionRate = totalRequired > 0 ? Math.round((totalAssigned / totalRequired) * 100) : 0;
-    document.getElementById('completionRate').textContent = completionRate + '%';
+    completionRateEl.textContent = completionRate + '%';
 }
 
 function calculateAssignedHours(groupName) {
