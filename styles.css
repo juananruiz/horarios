@@ -257,7 +257,7 @@ a.button-link:hover {
     color: var(--md-on-secondary-container);
     padding: var(--spacing-s);
     text-align: center;
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
@@ -504,6 +504,6 @@ a.button-link:hover {
 
 .teacher-schedule-compact .recreo {
     font-weight: bold;
-    background-color: #E8F5E9 !important;
+    background-color: #e9f4ea !important;
     color: var(--recreo-text);
 }

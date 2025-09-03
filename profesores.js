@@ -22,7 +22,7 @@ function renderCompactTeacherSchedule() {
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
     const timeHeader = document.createElement('th');
-    timeHeader.textContent = 'Hora';
+    timeHeader.textContent = '';
     headerRow.appendChild(timeHeader);
 
     sortedTeachers.forEach(teacherName => {
