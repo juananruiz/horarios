@@ -36,6 +36,31 @@ function generateTimeSlots(start, end, interval) {
 const timeIntervals = generateTimeSlots("09:00", "14:00", 15);
 const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
+const subjectClassMapping = {
+    'cono': 'cono',
+    'inglés': 'ingles',
+    'francés': 'frances',
+    'música': 'musica',
+    'plástica': 'plastica',
+    'religión': 'religion',
+    'mates': 'mates-lengua',
+    'lengua': 'mates-lengua',
+    'fisica': 'ed-fisica', // Cambiado de 'ed. fisica' a 'fisica' para más flexibilidad
+    'refuerzo': 'refuerzo'
+};
+
+function getSubjectClass(subjectName) {
+    if (!subjectName) return '';
+    const lowerSubject = subjectName.toLowerCase();
+    // Buscar coincidencias exactas o parciales
+    for (const key in subjectClassMapping) {
+        if (lowerSubject.includes(key)) {
+            return `subject-color--${subjectClassMapping[key]}`;
+        }
+    }
+    return '';
+}
+
 let schedules = {};
 let currentEditingCell = null;
 
@@ -256,6 +281,13 @@ function renderSchedules() {
                         const numSlots = (schedule.duration * 60) / 15;
                         cell.rowSpan = numSlots;
                         cell.classList.add('occupied');
+                        
+                        // Añadir clase de color para la asignatura
+                        const colorClass = getSubjectClass(schedule.subject);
+                        if (colorClass) {
+                            cell.classList.add(colorClass);
+                        }
+
                         cell.innerHTML = `
                             <div class="class-info">${schedule.subject}</div>
                             <div class="teacher-info">${schedule.teacher}</div>

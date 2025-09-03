@@ -293,6 +293,12 @@ function renderCompactTeacherSchedule() {
                     const numSlots = (schedule.duration * 60) / 15;
                     if (numSlots > 1) cell.rowSpan = numSlots;
                     cell.classList.add('occupied');
+
+                    // Añadir clase de color para la asignatura
+                    const colorClass = getSubjectClass(schedule.subject);
+                    if (colorClass) {
+                        cell.classList.add(colorClass);
+                    }
                 } else if (schedule && schedule.isContinuation) {
                     return;
                 } else {

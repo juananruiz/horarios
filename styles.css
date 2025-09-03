@@ -509,3 +509,50 @@ a.button-link:hover {
     background-color: #e9f4ea !important;
     color: var(--recreo-text);
 }
+
+/* 9. Subject Colors
+--------------------------------------------------------------------------------------------------------------------------------------*/
+.subject-color--cono {
+    background-color: #C8E6C9 !important; /* Verde */
+    color: #1B5E20 !important;
+}
+
+.subject-color--ingles {
+    background-color: #BBDEFB !important; /* Azul */
+    color: #0D47A1 !important;
+}
+
+.subject-color--frances {
+    background-color: #FFCDD2 !important; /* Rojo */
+    color: #B71C1C !important;
+}
+
+.subject-color--musica {
+    background-color: #E1BEE7 !important; /* Morado */
+    color: #4A148C !important;
+}
+
+.subject-color--plastica {
+    background-color: #FFF9C4 !important; /* Amarillo */
+    color: #F57F17 !important;
+}
+
+.subject-color--religion {
+    background-color: #D7CCC8 !important; /* Marrón */
+    color: #3E2723 !important;
+}
+
+.subject-color--mates-lengua {
+    background-color: #F5F5F5 !important; /* Gris Claro */
+    color: #212121 !important;
+}
+
+.subject-color--ed-fisica {
+    background-color: #F8BBD0 !important; /* Rosa */
+    color: #880E4F !important;
+}
+
+.subject-color--refuerzo {
+    background-color: #FFE0B2 !important; /* Naranja */
+    color: #E65100 !important;
+}
