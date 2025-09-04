@@ -33,8 +33,6 @@ function saveTeachersData() {
     localStorage.setItem('horariosTeachers', JSON.stringify(teachers));
 }
 
-
-
 function generateTimeSlots(start, end, interval) {
     const slots = [];
     let current = new Date(`1970-01-01T${start}:00`);
@@ -59,20 +57,19 @@ const subjectClassMapping = {
     'religión': 'religion',
     'mates': 'mates-lengua',
     'lengua': 'mates-lengua',
-    'fisica': 'ed-fisica', // Cambiado de 'ed. fisica' a 'fisica' para más flexibilidad
+    'fisica': 'ed-fisica',
     'refuerzo': 'refuerzo'
 };
 
 function getSubjectClass(subjectName) {
     if (!subjectName) return '';
+    
     const lowerSubject = subjectName.toLowerCase();
-    // Buscar coincidencias exactas o parciales
-    for (const key in subjectClassMapping) {
-        if (lowerSubject.includes(key)) {
-            return `subject-color--${subjectClassMapping[key]}`;
-        }
-    }
-    return '';
+    const mappingKey = Object.keys(subjectClassMapping).find(key => 
+        lowerSubject.includes(key)
+    );
+    
+    return mappingKey ? `subject-color--${subjectClassMapping[mappingKey]}` : '';
 }
 
 let schedules = {};
@@ -82,63 +79,68 @@ function initializeAppData() {
     loadGroupsData();
     loadTeachersData();
     loadSchedulesFromStorage();
-    ensureAllScheduleSlotsAreArrays(); // Agregar esta verificación adicional
+    ensureAllScheduleSlotsAreArrays();
 
-    // Reconciliación de datos: asegurar que cada grupo tiene un horario.
+    // Asegurar que cada grupo tiene un horario inicializado
     Object.keys(groups).forEach(groupName => {
         ensureScheduleExistsForGroup(groupName);
     });
-    saveSchedulesToStorage(); // Guardar por si se ha creado algún horario para un grupo que no lo tenía
+    
+    // Guardar solo si hubo cambios
+    saveSchedulesToStorage();
 }
 
 // Función para garantizar que todas las estructuras de horarios sean arrays
 function ensureAllScheduleSlotsAreArrays() {
+    let hasChanges = false;
+    
     Object.keys(schedules).forEach(group => {
         Object.keys(schedules[group]).forEach(day => {
             Object.keys(schedules[group][day]).forEach(time => {
-                if (!Array.isArray(schedules[group][day][time])) {
-                    console.warn(`Convertido slot no-array en grupo ${group}, día ${day}, hora ${time}`);
+                const slot = schedules[group][day][time];
+                
+                if (!Array.isArray(slot)) {
+                    hasChanges = true;
                     
-                    // Si es un objeto (asignatura), convertirlo a array con ese objeto
-                    if (schedules[group][day][time] && typeof schedules[group][day][time] === 'object') {
-                        schedules[group][day][time] = [schedules[group][day][time]];
+                    if (slot && typeof slot === 'object') {
+                        // Convertir objeto individual a array
+                        schedules[group][day][time] = [slot];
                     } else {
+                        // Inicializar como array vacío
                         schedules[group][day][time] = [];
                     }
                 }
             });
         });
     });
+    
+    if (hasChanges) {
+        console.log('Se corrigieron algunas estructuras de datos no válidas');
+    }
 }
 
 // --- Persistencia de Datos ---
 function saveSchedulesToStorage() {
     try {
-        // Crear una copia profunda para evitar problemas con referencias
-        const schedulesToSave = JSON.parse(JSON.stringify(schedules));
+        // Verificar estructura antes de guardar y corregir si es necesario
+        const schedulesToSave = {};
         
-        // Verificar la estructura antes de guardar
-        Object.keys(schedulesToSave).forEach(group => {
-            Object.keys(schedulesToSave[group]).forEach(day => {
-                Object.keys(schedulesToSave[group][day]).forEach(time => {
-                    // Asegurarse de que cada slot sea un array
-                    if (!Array.isArray(schedulesToSave[group][day][time])) {
-                        console.warn(`Corrigiendo formato antes de guardar: ${group}/${day}/${time}`);
-                        schedulesToSave[group][day][time] = [];
-                    }
+        Object.keys(schedules).forEach(group => {
+            schedulesToSave[group] = {};
+            Object.keys(schedules[group]).forEach(day => {
+                schedulesToSave[group][day] = {};
+                Object.keys(schedules[group][day]).forEach(time => {
+                    const slot = schedules[group][day][time];
+                    schedulesToSave[group][day][time] = Array.isArray(slot) ? slot : [];
                 });
             });
         });
         
-        // Guardar en localStorage
-        const jsonData = JSON.stringify(schedulesToSave);
-        localStorage.setItem('horariosSchedules', jsonData);
-        
-        console.log(`Datos guardados correctamente: ${jsonData.length} bytes`);
+        localStorage.setItem('horariosSchedules', JSON.stringify(schedulesToSave));
         return true;
     } catch (error) {
         console.error('Error al guardar datos:', error);
-        alert('Hubo un error al guardar los datos. Por favor, verifica la consola.');
+        showNotification('Error al guardar los datos', 'error', 3000);
         return false;
     }
 }
@@ -618,15 +620,17 @@ function assignSubject() {
     const { group, day, time } = currentEditingCell;
     const teacher = groups[group].subjects[subject].teacher;
 
+    // Calcular slots de tiempo necesarios
     const numSlots = (duration * 60) / 15;
     const timeSlotsToOccupy = [];
     let currentTime = new Date(`1970-01-01T${time}:00`);
+    
     for (let i = 0; i < numSlots; i++) {
         timeSlotsToOccupy.push(currentTime.toTimeString().substring(0, 5));
         currentTime.setMinutes(currentTime.getMinutes() + 15);
     }
 
-    // --- NUEVA VALIDACIÓN ---
+    // Validaciones
     const lastSlot = timeSlotsToOccupy[timeSlotsToOccupy.length - 1];
     if (new Date(`1970-01-01T${lastSlot}:00`) >= new Date(`1970-01-01T14:00:00`)) {
         alert('La clase no puede terminar después de las 14:00.');
@@ -638,65 +642,57 @@ function assignSubject() {
             alert('La clase no puede solaparse con el recreo.');
             return;
         }
-        // --- VALIDACIÓN MEJORADA ---
-        // Permitir hasta 2 clases por slot.
+        
         const itemsInSlot = schedules[group]?.[day]?.[slot] || [];
-        // La condición `slot !== time` es para evitar que la validación falle al editar una clase existente.
         if (itemsInSlot.length >= 2 && slot !== time) {
             alert(`El slot ${slot} ya tiene dos clases. No se pueden añadir más.`);
             return;
         }
     }
-    // --- FIN DE LA VALIDACIÓN ---
 
-    // --- LÓGICA DE ASIGNACIÓN MODIFICADA ---
-    // Eliminar solo la asignatura que se está editando (si existe) en lugar de todo el slot.
-    // Esto es importante para permitir dos clases en el mismo slot.
+    // Eliminar asignatura existente del mismo profesor si la hay
     const existingItems = schedules[group][day][time];
-    if (existingItems.length > 0) {
-        // Si estamos editando, quitamos la clase anterior del mismo profesor.
-        const itemIndex = existingItems.findIndex(item => item.teacher === teacher);
-        if (itemIndex !== -1) {
-            // Creamos una "célula de edición falsa" para eliminar solo esa asignatura.
-            const tempEditingCell = { ...currentEditingCell, subjectToRemove: existingItems[itemIndex].subject };
-            removeSubject(false, tempEditingCell);
+    if (existingItems && existingItems.length > 0) {
+        const existingIndex = existingItems.findIndex(item => item.teacher === teacher);
+        if (existingIndex !== -1) {
+            removeSubject(false, { 
+                ...currentEditingCell, 
+                subjectToRemove: existingItems[existingIndex].subject 
+            });
         } else if (existingItems.length >= 2) {
             alert('Este hueco ya tiene dos asignaturas. No se pueden añadir más.');
             return;
         }
     }
 
+    // Crear nuevo item
     const newScheduleItem = {
-        id: generateUniqueId(),  // Añadir ID único
+        id: generateUniqueId(),
         subject: subject,
         teacher: teacher,
         duration: duration,
         isStart: true,
-        createdAt: new Date().toISOString()  // Añadir timestamp
+        createdAt: new Date().toISOString()
     };
 
-    // Asegurarnos de que schedules[group][day][time] sea un array
+    // Asegurar que el slot es un array y añadir el item
     if (!Array.isArray(schedules[group][day][time])) {
         schedules[group][day][time] = [];
     }
-
-    // Añadimos la nueva asignatura al array.
-    // Aquí está la clave: si ya hay una, se añade la segunda.
     schedules[group][day][time].push(newScheduleItem);
 
-    // Guardar el ID para usarlo en las celdas de continuación
+    // Crear celdas de continuación
     const parentId = newScheduleItem.id;
-
     for (let i = 1; i < timeSlotsToOccupy.length; i++) {
-        // Asegurarnos de que cada celda de continuación sea un array
-        if (!Array.isArray(schedules[group][day][timeSlotsToOccupy[i]])) {
-            schedules[group][day][timeSlotsToOccupy[i]] = [];
+        const continuationSlot = timeSlotsToOccupy[i];
+        
+        if (!Array.isArray(schedules[group][day][continuationSlot])) {
+            schedules[group][day][continuationSlot] = [];
         }
         
-        // Las celdas de continuación también son arrays
-        schedules[group][day][timeSlotsToOccupy[i]].push({
-            id: generateUniqueId(),  // ID único para la continuación
-            parentId: parentId,      // Referencia al ID padre
+        schedules[group][day][continuationSlot].push({
+            id: generateUniqueId(),
+            parentId: parentId,
             isContinuation: true,
             startTime: time
         });
@@ -715,231 +711,93 @@ function removeSubject(shouldRender = true, cellInfo = currentEditingCell) {
     }
     
     const { group, day, time } = cellInfo;
-    if (!schedules[group] || !schedules[group][day] || !schedules[group][day][time]) {
-        console.warn(`No hay horario para ${group} ${day} ${time}`);
-        return;
-    }
+    const scheduleItems = schedules[group]?.[day]?.[time];
     
-    const scheduleItems = schedules[group][day][time];
     if (!scheduleItems || scheduleItems.length === 0) {
-        console.warn(`No hay elementos en el horario para ${group} ${day} ${time}`);
+        console.warn(`No hay elementos para eliminar en ${group}/${day}/${time}`);
         return;
     }
 
-    // Determinar qué elemento eliminar
     let itemToRemove = null;
-    let itemId = null;
-    let parentId = null;
     let startTime = time;
+    const idsToRemove = new Set();
 
-    // 1. Si es una continuación, encontrar el elemento de inicio
+    // Determinar el elemento a eliminar
     const isContinuation = scheduleItems.some(item => item.isContinuation);
     
     if (isContinuation) {
-        // Si es una continuación, necesitamos el parentId para encontrar el elemento principal
-        const continuationItem = schedules[group][day][time].find(item => item.isContinuation);
+        const continuationItem = scheduleItems.find(item => item.isContinuation);
         
-        if (continuationItem) {
-            // Si tiene parentId, usar eso para identificar todas las partes de la asignatura
-            if (continuationItem.parentId) {
-                parentId = continuationItem.parentId;
-                console.log(`Encontrada celda de continuación con parentId: ${parentId}`);
-            } 
-            // Si no tiene parentId (datos antiguos), usar el startTime
-            else if (continuationItem.startTime) {
-                startTime = continuationItem.startTime;
-                
-                // Buscar en el slot de inicio
-                if (schedules[group]?.[day]?.[startTime]) {
-                    const startSlotItems = schedules[group][day][startTime];
-                    
-                    // Si solo hay un elemento en el slot de inicio, usarlo
-                    if (startSlotItems.length === 1) {
-                        itemToRemove = startSlotItems[0];
-                        console.log(`Usando único elemento del slot de inicio: ${startSlotItems[0].subject}`);
-                    } 
-                    // Si hay varios elementos, usar el selector para elegir
-                    else {
-                        const subjectNameToRemove = cellInfo.subjectToRemove || document.getElementById('subjectSelect').value;
-                        console.log('Intentando eliminar asignatura:', subjectNameToRemove);
-                        console.log('Asignaturas disponibles:', startSlotItems.map(item => item.subject));
-                        
-                        itemToRemove = startSlotItems.find(item => item.subject === subjectNameToRemove);
-                        console.log(`Buscando ${subjectNameToRemove} en slot ${startTime}`);
+        if (continuationItem?.parentId) {
+            // Buscar por parentId en todo el día
+            Object.keys(schedules[group][day]).forEach(slotTime => {
+                schedules[group][day][slotTime].forEach(item => {
+                    if (item.id === continuationItem.parentId || item.parentId === continuationItem.parentId) {
+                        idsToRemove.add(item.id);
                     }
-                }
+                });
+            });
+        } else if (continuationItem?.startTime) {
+            startTime = continuationItem.startTime;
+            const startSlotItems = schedules[group][day][startTime];
+            
+            if (startSlotItems?.length === 1) {
+                itemToRemove = startSlotItems[0];
+            } else {
+                const subjectName = cellInfo.subjectToRemove || document.getElementById('subjectSelect')?.value;
+                itemToRemove = startSlotItems?.find(item => item.subject === subjectName);
             }
         }
-    } 
-    // 2. Si no es continuación, intentar encontrar por subject o directamente
-    else {
-        const subjectNameToRemove = cellInfo.subjectToRemove || document.getElementById('subjectSelect').value;
+    } else {
+        const subjectName = cellInfo.subjectToRemove || document.getElementById('subjectSelect')?.value;
         
-        if (subjectNameToRemove && subjectNameToRemove !== '') {
-            console.log('Intentando eliminar asignatura:', subjectNameToRemove);
-            console.log('Asignaturas disponibles:', scheduleItems.map(item => item.subject));
-            
-            itemToRemove = scheduleItems.find(item => item.subject === subjectNameToRemove);
-            console.log(`Buscando asignatura ${subjectNameToRemove} en slot actual`);
-        } 
-        // Si no hay un valor específico, tomar el primero
-        else if (scheduleItems.length > 0) {
+        if (subjectName) {
+            itemToRemove = scheduleItems.find(item => item.subject === subjectName);
+        } else {
             itemToRemove = scheduleItems.find(item => item.isStart) || scheduleItems[0];
-            console.log(`Tomando primer elemento del slot: ${itemToRemove.subject}`);
         }
     }
 
-    // 3. Recopilar todos los IDs a eliminar
-    const idsToRemove = new Set();
-    
-    // Si encontramos un elemento directamente
+    // Recopilar IDs a eliminar
     if (itemToRemove) {
         if (itemToRemove.id) {
             idsToRemove.add(itemToRemove.id);
-            console.log(`Añadiendo ID a eliminar: ${itemToRemove.id} (${itemToRemove.subject})`);
-        }
-        
-        // También buscar elementos de continuación por startTime (compatibilidad)
-        
-        // Recorrer todos los días y horas para encontrar continuaciones
-        Object.keys(schedules[group][day]).forEach(slotTime => {
-            const slotItems = schedules[group][day][slotTime];
             
-            slotItems.forEach(item => {
-                // Eliminar por parentId (nuevo método)
-                if (itemToRemove.id && item.parentId === itemToRemove.id) {
-                    idsToRemove.add(item.id);
-                    console.log(`Añadiendo continuación por parentId: ${item.id}`);
-                }
-                // Eliminar por startTime (compatibilidad con datos antiguos)
-                else if (item.startTime === startTime && item.isContinuation) {
-                    if (item.id) idsToRemove.add(item.id);
-                    console.log(`Añadiendo continuación por startTime: ${item.id || 'sin ID'}`);
-                }
+            // Buscar elementos relacionados
+            Object.keys(schedules[group][day]).forEach(slotTime => {
+                schedules[group][day][slotTime].forEach(item => {
+                    if ((item.parentId === itemToRemove.id) || 
+                        (item.startTime === startTime && item.isContinuation)) {
+                        if (item.id) idsToRemove.add(item.id);
+                    }
+                });
             });
-        });
-        
-        // Si tenemos itemToRemove pero no tiene ID, usamos el método antiguo
-        if (!itemToRemove.id) {
-            console.log('Eliminando:', itemToRemove.subject, 'en', startTime);
-            
-            // Determinar cuántos slots ocupa esta asignatura
-            const numSlots = (itemToRemove.duration * 60) / 15;
-            console.log(`La asignatura ocupa ${numSlots} slots`);
-            
-            // Eliminar la asignatura de todos los slots que ocupa
-            for (let i = 0; i < numSlots; i++) {
-                let d = new Date(`1970-01-01T${startTime}:00`);
-                d.setMinutes(d.getMinutes() + i * 15);
-                const slotToClear = d.toTimeString().substring(0, 5);
-                
-                if (schedules[group]?.[day]?.[slotToClear]) {
-                    console.log(`Limpiando slot ${slotToClear}`);
-                    
-                    // Crear una nueva copia del array sin los elementos que queremos eliminar
-                    const oldItems = [...schedules[group][day][slotToClear]];
-                    const newItems = oldItems.filter(item => {
-                        // Mantener elementos que NO coincidan con la clase que estamos eliminando
-                        const isPartOfRemovedClass = 
-                            (item.startTime === startTime && 
-                             (item.subject === itemToRemove.subject || 
-                              (item.isContinuation && !item.subject)));
-                        
-                        const shouldKeep = !isPartOfRemovedClass;
-                        if (!shouldKeep) {
-                            console.log(`  - Eliminando elemento en ${slotToClear}:`, item);
-                        }
-                        return shouldKeep;
-                    });
-                    
-                    console.log(`Slot ${slotToClear}: ${oldItems.length} elementos antes, ${newItems.length} después`);
-                    
-                    // Asignar el nuevo array de elementos - IMPORTANTE: crear un nuevo array para forzar la actualización
-                    schedules[group][day][slotToClear] = [...newItems];
-                }
-            }
-            
-            // Guardamos y retornamos para no seguir con el resto del algoritmo
-            saveSchedulesToStorage();
-            console.log('Cambios guardados en localStorage (método antiguo)');
-            
-            if (shouldRender) {
-                closeModal();
-                renderSchedules();
-                updateStats();
-            }
-            return;
+        } else {
+            // Método antiguo para datos sin ID
+            return removeSubjectLegacy(itemToRemove, startTime, group, day, shouldRender);
         }
-    }
-    // Si encontramos un parentId (de una continuación)
-    else if (parentId) {
-        // Buscar en todos los slots del día para encontrar elementos con este parentId
-        Object.keys(schedules[group][day]).forEach(slotTime => {
-            const slotItems = schedules[group][day][slotTime];
-            
-            slotItems.forEach(item => {
-                if (item.id === parentId || item.parentId === parentId) {
-                    idsToRemove.add(item.id);
-                    console.log(`Añadiendo elemento por parentId: ${item.id}`);
-                }
-            });
-        });
-    }
-    // Si no encontramos ni elemento ni parentId, fallback a método antiguo
-    else {
-        console.warn('No se pudo determinar qué elementos eliminar');
-        return;
     }
 
     if (idsToRemove.size === 0) {
-        console.warn('No se encontraron IDs para eliminar');
+        console.warn('No se encontraron elementos para eliminar');
         return;
     }
-    
-    console.log(`Eliminando ${idsToRemove.size} elementos con IDs:`, Array.from(idsToRemove));
-    
-    // 4. Eliminar todos los elementos con los IDs recopilados
-    let elementosEliminados = 0;
-    
+
+    // Eliminar elementos
+    let elementsRemoved = 0;
     Object.keys(schedules[group][day]).forEach(slotTime => {
-        if (!schedules[group][day][slotTime]) return;
-        
         const beforeCount = schedules[group][day][slotTime].length;
         
-        // Filtrar eliminando los elementos con IDs en el conjunto
         schedules[group][day][slotTime] = schedules[group][day][slotTime].filter(item => {
-            // Para datos antiguos que no tienen ID
-            if (!item.id) {
-                // Si es continuación, verificar por startTime
-                if (item.isContinuation && itemToRemove && item.startTime === startTime) {
-                    elementosEliminados++;
-                    return false; // Eliminar
-                }
-                // Si es elemento principal, verificar por subject
-                else if (itemToRemove && item.subject === itemToRemove.subject) {
-                    elementosEliminados++;
-                    return false; // Eliminar
-                }
-                return true; // Mantener
-            }
-            
-            // Para datos con ID
-            const shouldRemove = idsToRemove.has(item.id);
-            if (shouldRemove) elementosEliminados++;
-            return !shouldRemove; // Mantener si no está en la lista de eliminación
+            const shouldRemove = item.id ? idsToRemove.has(item.id) : false;
+            if (shouldRemove) elementsRemoved++;
+            return !shouldRemove;
         });
-        
-        const afterCount = schedules[group][day][slotTime].length;
-        if (beforeCount !== afterCount) {
-            console.log(`Slot ${slotTime}: ${beforeCount} elementos antes, ${afterCount} después`);
-        }
     });
+
+    console.log(`Eliminados ${elementsRemoved} elementos`);
     
-    console.log(`Se eliminaron ${elementosEliminados} elementos en total`);
-    
-    // 5. Guardar cambios y actualizar interfaz
     saveSchedulesToStorage();
-    console.log('Cambios guardados en localStorage (método de IDs)');
     
     if (shouldRender) {
         closeModal();
@@ -948,72 +806,31 @@ function removeSubject(shouldRender = true, cellInfo = currentEditingCell) {
     }
 }
 
-// Función de diagnóstico para verificar si los cambios se están guardando correctamente
-function diagnosticarGuardado() {
-    console.log('--- DIAGNÓSTICO DE GUARDADO ---');
+// Función auxiliar para compatibilidad con datos antiguos
+function removeSubjectLegacy(itemToRemove, startTime, group, day, shouldRender) {
+    const numSlots = (itemToRemove.duration * 60) / 15;
     
-    // 1. Verificar si hay datos en schedules
-    console.log('Datos en memoria:', JSON.stringify(schedules).length, 'bytes');
-    
-    // 2. Verificar localStorage
-    const storedData = localStorage.getItem('horariosSchedules');
-    console.log('Datos en localStorage:', storedData ? storedData.length : 0, 'bytes');
-    
-    // 3. Comparar datos
-    if (storedData) {
-        const parsedStored = JSON.parse(storedData);
-        let diferencias = false;
+    for (let i = 0; i < numSlots; i++) {
+        const slotTime = new Date(`1970-01-01T${startTime}:00`);
+        slotTime.setMinutes(slotTime.getMinutes() + i * 15);
+        const timeKey = slotTime.toTimeString().substring(0, 5);
         
-        Object.keys(schedules).forEach(group => {
-            if (!parsedStored[group]) {
-                console.log(`Grupo ${group} no existe en localStorage`);
-                diferencias = true;
-                return;
-            }
-            
-            Object.keys(schedules[group]).forEach(day => {
-                if (!parsedStored[group][day]) {
-                    console.log(`Día ${day} no existe en localStorage para el grupo ${group}`);
-                    diferencias = true;
-                    return;
-                }
-                
-                Object.keys(schedules[group][day]).forEach(time => {
-                    if (!parsedStored[group][day][time]) {
-                        console.log(`Hora ${time} no existe en localStorage para ${group}/${day}`);
-                        diferencias = true;
-                        return;
-                    }
-                    
-                    const memItems = schedules[group][day][time];
-                    const storedItems = parsedStored[group][day][time];
-                    
-                    if (memItems.length !== storedItems.length) {
-                        console.log(`Diferencia en número de elementos en ${group}/${day}/${time}: memoria=${memItems.length}, localStorage=${storedItems.length}`);
-                        diferencias = true;
-                    }
-                });
+        if (schedules[group]?.[day]?.[timeKey]) {
+            schedules[group][day][timeKey] = schedules[group][day][timeKey].filter(item => {
+                return !(item.startTime === startTime && 
+                        (item.subject === itemToRemove.subject || item.isContinuation));
             });
-        });
-        
-        if (!diferencias) {
-            console.log('No se encontraron diferencias entre memoria y localStorage');
         }
     }
     
-    console.log('--- FIN DEL DIAGNÓSTICO ---');
+    saveSchedulesToStorage();
+    
+    if (shouldRender) {
+        closeModal();
+        renderSchedules();
+        updateStats();
+    }
 }
-
-// Agregar la función al objeto window para poder llamarla desde la consola del navegador
-window.diagnosticarGuardado = diagnosticarGuardado;
-
-// Sobrescribir saveSchedulesToStorage para llamar a diagnosticarGuardado automáticamente
-const originalSaveSchedulesToStorage = saveSchedulesToStorage;
-saveSchedulesToStorage = function() {
-    console.log('Guardando horarios en localStorage...');
-    originalSaveSchedulesToStorage();
-    diagnosticarGuardado();
-};
 
 function closeModal() {
     document.getElementById('subjectSelector').style.display = 'none';
@@ -1085,18 +902,14 @@ function displayConflicts(conflicts) {
     const list = document.getElementById('conflictsList');
     const conflictCountEl = document.getElementById('conflictCount');
 
-    const uniqueConflicts = Array.from(new Set(conflicts.map(c => JSON.stringify(c)))).map(s => JSON.parse(s));
-
     if (conflictCountEl) {
-        conflictCountEl.textContent = uniqueConflicts.length;
+        conflictCountEl.textContent = conflicts.length;
     }
 
-    // Si el panel de conflictos no existe en la página actual, no continuar.
-    if (!panel || !list) {
-        return;
-    }
+    // Si el panel no existe, salir
+    if (!panel || !list) return;
 
-    if (uniqueConflicts.length === 0) {
+    if (conflicts.length === 0) {
         panel.classList.remove('show');
         return;
     }
@@ -1104,11 +917,12 @@ function displayConflicts(conflicts) {
     panel.classList.add('show');
     list.innerHTML = '';
 
-    uniqueConflicts.forEach(conflict => {
+    conflicts.forEach(conflict => {
         const item = document.createElement('div');
         item.className = 'conflict-item';
         const [day, time] = conflict.time.split('-', 2);
         const groupNames = conflict.groups.map(g => `${g.group} (${g.subject})`).join(', ');
+        
         item.innerHTML = `
             <strong>${conflict.teacher}</strong> tiene conflicto el <strong>${day}</strong> 
             a las <strong>${time}</strong>: ${groupNames}
@@ -1158,28 +972,30 @@ function updateStats() {
     const completionRateEl = document.getElementById('completionRate');
     const conflictCountEl = document.getElementById('conflictCount');
 
-    // Si no existen los elementos de estadísticas, no hacer nada.
-    if (!totalClassesEl || !completionRateEl || !conflictCountEl) {
-        return;
-    }
+    // Early return si no existen los elementos
+    if (!totalClassesEl || !completionRateEl || !conflictCountEl) return;
 
     let totalAssigned = 0;
     let totalRequired = 0;
 
     Object.keys(groups).forEach(group => {
-        if (groups[group] && groups[group].subjects) {
-            Object.keys(groups[group].subjects).forEach(subject => {
-                totalRequired += groups[group].subjects[subject].hours;
-            });
-        }
+        const groupData = groups[group];
+        if (!groupData || !groupData.subjects) return;
 
+        // Calcular horas requeridas
+        Object.values(groupData.subjects).forEach(subject => {
+            totalRequired += subject.hours || 0;
+        });
+
+        // Calcular horas asignadas
         if (schedules[group]) {
-            Object.keys(schedules[group]).forEach(day => {
-                Object.keys(schedules[group][day]).forEach(time => {
-                    const scheduleItems = schedules[group][day][time];
-                    if (scheduleItems && scheduleItems.length > 0) {
-                        scheduleItems.forEach(schedule => {
-                            if (schedule.isStart) totalAssigned += schedule.duration || 1;
+            Object.values(schedules[group]).forEach(daySchedule => {
+                Object.values(daySchedule).forEach(timeSlot => {
+                    if (Array.isArray(timeSlot)) {
+                        timeSlot.forEach(item => {
+                            if (item.isStart) {
+                                totalAssigned += item.duration || 1;
+                            }
                         });
                     }
                 });
@@ -1188,28 +1004,29 @@ function updateStats() {
     });
 
     totalClassesEl.textContent = Math.round(totalAssigned * 100) / 100;
-
+    
     const completionRate = totalRequired > 0 ? Math.round((totalAssigned / totalRequired) * 100) : 0;
     completionRateEl.textContent = completionRate + '%';
 }
 
 function calculateAssignedHours(groupName) {
     const assigned = {};
-    if (!schedules[groupName]) return assigned; // No schedule for this group yet
+    const groupSchedule = schedules[groupName];
+    
+    if (!groupSchedule) return assigned;
 
-    days.forEach(day => {
-        timeIntervals.forEach(time => {
-            // Añadir una comprobación para asegurarse de que scheduleItems es un array.
-            const scheduleItems = schedules[groupName]?.[day]?.[time];
-            if (scheduleItems && scheduleItems.length > 0) {
-                scheduleItems.forEach(item => {
-                    if (item.isStart) {
+    Object.values(groupSchedule).forEach(daySchedule => {
+        Object.values(daySchedule).forEach(timeSlot => {
+            if (Array.isArray(timeSlot)) {
+                timeSlot.forEach(item => {
+                    if (item.isStart && item.subject) {
                         assigned[item.subject] = (assigned[item.subject] || 0) + (item.duration || 1);
                     }
                 });
             }
         });
     });
+    
     return assigned;
 }
 
@@ -1221,8 +1038,6 @@ function calculateTotalRequiredHours(groupName) {
     });
     return required;
 }
-
-
 
 function exportData() {
     const data = {
@@ -1248,7 +1063,6 @@ function importData() {
 
 function addEventListeners() {
     document.getElementById('groupFilter').addEventListener('change', renderSchedules);
-    // document.getElementById('checkConflictsBtn').addEventListener('click', checkAllConflicts);
     
     document.getElementById('exportBtn').addEventListener('click', exportData);
     document.getElementById('importBtn').addEventListener('click', importData);
