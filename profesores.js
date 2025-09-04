@@ -233,8 +233,12 @@ function renderCompactTeacherSchedule() {
     const container = document.getElementById('scheduleContainer');
     container.innerHTML = '';
 
+    // Ordenar la lista de profesores por el nuevo campo ID
+    // Los que no tienen ID van al final
+    teachers.sort((a, b) => (a.id || 'ZZZZZ').localeCompare(b.id || 'ZZZZZ'));
+    const sortedTeachers = teachers.map(teacher => teacher.name);
+
     const teacherSchedules = buildTeacherSchedules(schedules);
-    const sortedTeachers = Object.keys(teacherSchedules).sort();
     const dayInitials = { "Lunes": "L", "Martes": "M", "Miércoles": "X", "Jueves": "J", "Viernes": "V" };
 
     const table = document.createElement('table');

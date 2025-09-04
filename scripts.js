@@ -12,7 +12,21 @@ function saveGroupsData() {
 
 function loadTeachersData() {
     const storedTeachers = localStorage.getItem('horariosTeachers');
-    teachers = storedTeachers ? JSON.parse(storedTeachers) : [];
+    let loadedTeachers = storedTeachers ? JSON.parse(storedTeachers) : [];
+
+    // --- Migración de datos ---
+    // Si el primer elemento es un string, asumimos que es el formato antiguo.
+    if (loadedTeachers.length > 0 && typeof loadedTeachers[0] === 'string') {
+        loadedTeachers = loadedTeachers.map(teacherName => ({
+            name: teacherName,
+            // Generar un ID por defecto (se puede editar después)
+            id: teacherName.substring(0, 5).toUpperCase()
+        }));
+        // Guardar inmediatamente el nuevo formato
+        localStorage.setItem('horariosTeachers', JSON.stringify(loadedTeachers));
+    }
+    
+    teachers = loadedTeachers;
 }
 
 function saveTeachersData() {
@@ -104,13 +118,14 @@ function initIndexPage() {
 
 function buildTeacherSchedules(schedules) {
     const teacherSchedules = {};
-    
+    const teacherNames = teachers.map(t => t.name); // Get a list of names for quick lookup
+
     teachers.forEach(teacher => {
-        teacherSchedules[teacher] = {};
+        teacherSchedules[teacher.name] = {};
         days.forEach(day => {
-            teacherSchedules[teacher][day] = {};
+            teacherSchedules[teacher.name][day] = {};
             timeIntervals.forEach(time => {
-                teacherSchedules[teacher][day][time] = null;
+                teacherSchedules[teacher.name][day][time] = null;
             });
         });
     });
@@ -120,9 +135,9 @@ function buildTeacherSchedules(schedules) {
             Object.keys(schedules[groupName][day]).forEach(time => {
                 const scheduleItem = schedules[groupName][day][time];
                 if (scheduleItem && scheduleItem.isStart) {
-                    const teacher = scheduleItem.teacher;
-                    if (teachers.includes(teacher)) {
-                        teacherSchedules[teacher][day][time] = {
+                    const teacherName = scheduleItem.teacher;
+                    if (teacherNames.includes(teacherName)) { // Check if the teacher name exists
+                        teacherSchedules[teacherName][day][time] = {
                             subject: scheduleItem.subject,
                             group: groupName,
                             duration: scheduleItem.duration,
@@ -134,8 +149,8 @@ function buildTeacherSchedules(schedules) {
                         for (let i = 1; i < numSlots; i++) {
                             currentTime.setMinutes(currentTime.getMinutes() + 15);
                             const slotTime = currentTime.toTimeString().substring(0, 5);
-                            if (teacherSchedules[teacher][day][slotTime] !== undefined) {
-                                teacherSchedules[teacher][day][slotTime] = { isContinuation: true };
+                            if (teacherSchedules[teacherName][day][slotTime] !== undefined) {
+                                teacherSchedules[teacherName][day][slotTime] = { isContinuation: true };
                             }
                         }
                     }
