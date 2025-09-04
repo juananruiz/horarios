@@ -1,4 +1,5 @@
 - Poder poner dos profesores en un mismo slot de un mismo grupo.
+	- Preguntar si la duración sería siempre la misma para los dos o pueden diferir
 - Poner más gruesas las lineas de columnas cuando cambie el numero del ID pero no la letra.
 - Volver a hacer la interfaz de horario completo por profesor
 - Dar colores a las cosas que faltan: atedu marrón

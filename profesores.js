@@ -133,8 +133,14 @@ function assignSubjectForTeacher() {
             alert('La clase no puede solaparse con el recreo.');
             return;
         }
-        if (schedules[group]?.[day]?.[slot] && schedules[group][day][slot].isStart && slot !== time) {
-            alert(`El grupo '${group}' ya tiene otra clase en este espacio de tiempo.`);
+        // Modificamos la validación para permitir la superposición de profesores en un mismo grupo.
+        // Ahora solo dará error si el MISMO profesor ya tiene una clase en ese slot (evitando duplicados).
+        const itemsInSlot = schedules[group]?.[day]?.[slot] || [];
+        const isSameTeacherAssigned = itemsInSlot.some(item => item.isStart && item.teacher === teacherName);
+
+        // La condición `slot !== time` previene que la validación falle al editar una clase existente.
+        if (isSameTeacherAssigned && slot !== time) {
+            alert(`El profesor '${teacherName}' ya tiene una clase asignada para el grupo '${group}' en este espacio de tiempo.`);
             return;
         }
     }
@@ -143,18 +149,25 @@ function assignSubjectForTeacher() {
         removeSubjectForTeacher(false); // No renderizar
     }
 
-    schedules[group][day][time] = {
+    // Asegurarse de que el slot es un array y añadir la nueva clase.
+    // Esto alinea la lógica con scripts.js y permite la coexistencia de clases.
+    if (!Array.isArray(schedules[group][day][time])) {
+        schedules[group][day][time] = [];
+    }
+    schedules[group][day][time].push({
         subject: subject,
         teacher: teacherName,
         duration: duration,
         isStart: true
-    };
+    });
 
     for (let i = 1; i < timeSlotsToOccupy.length; i++) {
-        schedules[group][day][timeSlotsToOccupy[i]] = {
-            isContinuation: true,
-            startTime: time
-        };
+        // Las celdas de continuación también deben ser arrays.
+        const slot = timeSlotsToOccupy[i];
+        if (!Array.isArray(schedules[group][day][slot])) {
+            schedules[group][day][slot] = [];
+        }
+        schedules[group][day][slot].push({ isContinuation: true, startTime: time });
     }
 
     closeTeacherModal();
@@ -169,17 +182,40 @@ function assignSubjectForTeacher() {
 function removeSubjectForTeacher(shouldRender = true) {
     if (!currentTeacherEditingCell || !currentTeacherEditingCell.scheduleData) return;
 
-    const { group, day, time: startTime } = currentTeacherEditingCell.scheduleData;
-    const scheduleToRemove = schedules[group]?.[day]?.[startTime];
+    const { group, day, time } = currentTeacherEditingCell.scheduleData;
+    // Encontrar la hora de inicio real, ya que podríamos estar en una celda de continuación
+    const scheduleItems = schedules[group]?.[day]?.[time] || [];
+    const firstItem = scheduleItems.find(item => !item.isContinuation);
+    let startTime = time;
+    if (!firstItem && scheduleItems.length > 0 && scheduleItems[0].isContinuation) {
+        startTime = scheduleItems[0].startTime;
+    }
+    
+    const startSlotItems = schedules[group]?.[day]?.[startTime] || [];
+    // Encontrar el item específico a borrar basado en el profesor y la asignatura
+    const itemToRemoveIndex = startSlotItems.findIndex(item => 
+        item.teacher === currentTeacherEditingCell.teacherName && 
+        item.subject === currentTeacherEditingCell.scheduleData.subject
+    );
 
-    if (scheduleToRemove && scheduleToRemove.isStart) {
+    if (itemToRemoveIndex !== -1) {
+        const scheduleToRemove = startSlotItems[itemToRemoveIndex];
         const numSlots = (scheduleToRemove.duration * 60) / 15;
+
+        // Eliminar el item del slot de inicio
+        startSlotItems.splice(itemToRemoveIndex, 1);
+
+        // Limpiar las celdas de continuación
         for (let i = 0; i < numSlots; i++) {
             let d = new Date(`1970-01-01T${startTime}:00`);
             d.setMinutes(d.getMinutes() + i * 15);
             const slotToRemove = d.toTimeString().substring(0, 5);
             if (schedules[group]?.[day]?.[slotToRemove]) {
-                schedules[group][day][slotToRemove] = null;
+                const itemsInSlot = schedules[group][day][slotToRemove];
+                // Filtramos para quitar la continuación correcta, por si hay dos clases a la vez
+                const filteredItems = itemsInSlot.filter(item => !(item.isContinuation && item.startTime === startTime));
+                // Aseguramos que el resultado sea siempre un array.
+                schedules[group][day][slotToRemove] = filteredItems.length > 0 ? filteredItems : [];
             }
         }
     }
@@ -208,15 +244,19 @@ function closeTeacherModal() {
  */
 function getScheduleDataFromCell(teacherName, day, time) {
     for (const groupName of Object.keys(schedules)) {
-        const scheduleItem = schedules[groupName]?.[day]?.[time];
-        if (scheduleItem) {
-            if (scheduleItem.isStart && scheduleItem.teacher === teacherName) {
-                return { ...scheduleItem, group: groupName, day, time };
+        const scheduleItems = schedules[groupName]?.[day]?.[time];
+        if (Array.isArray(scheduleItems) && scheduleItems.length > 0) {
+            const itemForTeacher = scheduleItems.find(item => item.teacher === teacherName);
+            if (itemForTeacher && itemForTeacher.isStart) {
+                return { ...itemForTeacher, group: groupName, day, time };
             }
-            if (scheduleItem.isContinuation) {
-                const startItem = schedules[groupName]?.[day]?.[scheduleItem.startTime];
-                if (startItem && startItem.teacher === teacherName) {
-                    return { ...startItem, group: groupName, day: day, time: scheduleItem.startTime };
+
+            const continuationItem = scheduleItems.find(item => item.isContinuation);
+            if (continuationItem) {
+                const startItems = schedules[groupName]?.[day]?.[continuationItem.startTime];
+                const originalItem = startItems?.find(item => item.teacher === teacherName);
+                if (originalItem) {
+                    return { ...originalItem, group: groupName, day: day, time: continuationItem.startTime };
                 }
             }
         }
@@ -292,18 +332,19 @@ function renderCompactTeacherSchedule() {
 
                 const schedule = teacherSchedules[teacherName]?.[day]?.[time];
 
-                if (schedule && schedule.isStart) {
-                    cell.innerHTML = `<div>${schedule.subject}</div><div class="group-info">${schedule.group}</div>`;
-                    const numSlots = (schedule.duration * 60) / 15;
+                if (schedule && schedule.length > 0 && schedule[0].isStart) {
+                    const firstItem = schedule[0];
+                    cell.innerHTML = `<div>${firstItem.subject}</div><div class="group-info">${firstItem.group}</div>`;
+                    const numSlots = (firstItem.duration * 60) / 15;
                     if (numSlots > 1) cell.rowSpan = numSlots;
                     cell.classList.add('occupied');
 
                     // Añadir clase de color para la asignatura
-                    const colorClass = getSubjectClass(schedule.subject);
+                    const colorClass = getSubjectClass(firstItem.subject);
                     if (colorClass) {
                         cell.classList.add(colorClass);
                     }
-                } else if (schedule && schedule.isContinuation) {
+                } else if (schedule && schedule.length > 0 && schedule[0].isContinuation) {
                     return;
                 } else {
                     cell.innerHTML = '&nbsp;';

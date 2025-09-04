@@ -63,6 +63,76 @@
     --shadow-2: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+/* Estilos para información de múltiples asignaturas */
+.multi-subject-info {
+    margin: var(--spacing-s) 0;
+    padding: var(--spacing-s);
+    background-color: var(--md-tertiary-container);
+    color: var(--md-on-tertiary-container);
+    border-radius: var(--border-radius-s);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.multi-subject-info strong {
+    color: var(--md-tertiary);
+}
+
+/* Estilos para la notificación de la migración de datos */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: var(--spacing-m);
+    background-color: var(--md-primary);
+    color: var(--md-on-primary);
+    border-radius: var(--border-radius-m);
+    box-shadow: var(--shadow-2);
+    z-index: 1000;
+    max-width: 400px;
+    animation: slide-in 0.5s forwards;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.notification.success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border-left: 4px solid var(--success-border);
+}
+
+.notification.error {
+    background-color: var(--conflict-bg);
+    color: var(--conflict-text);
+    border-left: 4px solid var(--conflict-border);
+}
+
+.notification.hide {
+    animation: slide-out 0.5s forwards;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
 /* 2. Global Resets & Base Styles
 --------------------------------------------------------------------------------------------------------------------------------------*/
 * {
