@@ -3,104 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Datos de Grupos</title>
+    <title>Gestión de Datos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        main {
-            display: flex;
-            gap: 20px;
-        }
-        #group-list-container {
-            flex: 1;
-        }
-        #group-details-container {
-            flex: 2;
-        }
-        .list-item {
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 5px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .list-item.selected {
-            background-color: #e0e0e0;
-        }
-        #subjects-table th, #subjects-table td {
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
 </head>
 <body>
-    <header>
-        <h1>Gestión de Datos de Grupos</h1>
-        <nav>
-            <a href="index.html">Ver Horarios</a>
-        </nav>
-    </header>
-
-    <main>
-        <div id="teacher-container" class="card">
-            <h2>Profesores</h2>
-            <div id="teacher-list"></div>
-            <div class="form-group" style="display: flex; gap: 10px; margin-top: 10px;">
-                <input type="text" id="new-teacher-name" placeholder="Nombre del profesor">
-                <button id="add-teacher-btn" class="button">Añadir</button>
-            </div>
+    <div class="container">
+        <h1>✍️ Gestión de Datos</h1>
+        <div class="controls">
+             <a href="index.html" class="button-link">📅 Ver Horarios</a>
         </div>
 
-        <div id="group-list-container" class="card">
-            <h2>Grupos</h2>
-            <div id="group-list"></div>
-            <button id="new-group-btn" class="button">Nuevo Grupo</button>
-        </div>
+        <main style="display: flex; gap: 24px; flex-wrap: wrap;">
 
-        <div id="group-details-container" class="card">
-            <h2 id="details-title">Detalles del Grupo</h2>
-            <form id="group-form">
-                <div class="form-group">
-                    <label for="group-name">Nombre del Grupo:</label>
-                    <input type="text" id="group-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="group-order">Orden:</label>
-                    <input type="number" id="group-order" style="width: 60px;">
-                </div>
-                <div class="form-group">
-                    <label for="group-tutor">Tutor:</label>
-                    <select id="group-tutor" required></select>
+            <!-- Columna de Profesores -->
+            <div id="teacher-management-card" class="card" style="flex: 1; min-width: 300px;">
+                <h2>Profesores</h2>
+                <div id="teacher-list" style="margin-bottom: 16px;">
+                    <!-- La lista de profesores se renderizará aquí -->
                 </div>
                 
-                <h3>Asignaturas</h3>
-                <table id="subjects-table" class="schedule-table">
-                    <thead>
-                        <tr>
-                            <th>Asignatura</th>
-                            <th>Profesor</th>
-                            <th>Horas</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="subjects-tbody"></tbody>
-                </table>
-
-                <h4>Añadir Asignatura</h4>
-                <div class="form-group" style="display: flex; gap: 10px;">
-                    <input type="text" id="new-subject-name" placeholder="Nombre Asignatura">
-                    <select id="new-subject-teacher"></select>
-                    <input type="number" id="new-subject-hours" placeholder="Horas" step="0.25">
-                    <button type="button" id="add-subject-btn" class="button">Añadir</button>
+                <h3>Añadir / Modificar Profesor</h3>
+                <div class="form-group">
+                    <label for="new-teacher-name">Nombre del Profesor</label>
+                    <input type="text" id="new-teacher-name" placeholder="Ej: Juan Pérez">
                 </div>
+                <div class="form-group">
+                    <label for="new-teacher-id">ID (máx 5, para ordenar)</label>
+                    <input type="text" id="new-teacher-id" placeholder="Ej: JP" maxlength="5">
+                </div>
+                <button id="add-teacher-btn" class="button">Añadir Profesor</button>
+            </div>
 
-                <hr>
-                <button type="submit" class="button">Guardar Cambios</button>
-                <button type="button" id="delete-group-btn" class="button-danger">Eliminar Grupo</button>
-            </form>
-        </div>
-    </main>
+            <!-- Columna de Grupos -->
+            <div id="group-management-card" class="card" style="flex: 2; min-width: 400px;">
+                <div style="display: flex; gap: 16px;">
+                    <div id="group-list-container" style="flex: 1;">
+                        <h2>Grupos</h2>
+                        <div id="group-list"></div>
+                        <button id="new-group-btn" class="button" style="margin-top: 16px;">Nuevo Grupo</button>
+                    </div>
+            
+                    <div id="group-details-container" style="flex: 2;">
+                        <h2 id="details-title">Detalles del Grupo</h2>
+                        <form id="group-form">
+                            <div class="form-group">
+                                <label for="group-name">Nombre del Grupo:</label>
+                                <input type="text" id="group-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="group-order">Orden:</label>
+                                <input type="number" id="group-order" style="width: 80px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="group-tutor">Tutor:</label>
+                                <select id="group-tutor" required></select>
+                            </div>
+                            
+                            <h3>Asignaturas</h3>
+                            <table id="subjects-table" class="schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th>Asignatura</th>
+                                        <th>Profesor</th>
+                                        <th>Horas</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subjects-tbody"></tbody>
+                            </table>
+                            <div class="form-group" style="display: flex; gap: 10px; margin-top: 10px; align-items: flex-end;">
+                                <div style="flex: 2;">
+                                    <label for="new-subject-name">Nombre Asignatura</label>
+                                    <input type="text" id="new-subject-name" placeholder="Nombre">
+                                </div>
+                                <div style="flex: 2;">
+                                    <label for="new-subject-teacher">Profesor</label>
+                                    <select id="new-subject-teacher"></select>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label for="new-subject-hours">Horas</label>
+                                    <input type="number" id="new-subject-hours" placeholder="Horas" step="0.25">
+                                </div>
+                                <button type="button" id="add-subject-btn" class="button">Añadir</button>
+                            </div>
+            
+                            <hr style="margin: 24px 0;">
+                            <button type="submit" class="button">Guardar Cambios del Grupo</button>
+                            <button type="button" id="delete-group-btn" class="button-danger">Eliminar Grupo</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script src="scripts.js"></script>
     <script src="gestion-datos.js"></script>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horarios por Profesor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,7 +22,28 @@
         </div>
     </div>
 
+    <!-- Modal para seleccionar asignatura -->
+    <div class="subject-selector" id="subjectSelector">
+        <h4>Seleccionar Asignatura</h4>
+        <select id="groupSelect" style="margin-bottom: 10px; width: 100%;">
+            <option value="">-- Seleccionar Grupo --</option>
+        </select>
+        <select id="subjectSelect" style="margin-bottom: 10px; width: 100%;">
+            <option value="">-- Seleccionar Asignatura --</option>
+        </select>
+        <select id="durationSelect" style="width: 100%;">
+            <option value="0.75">45 min (0.75h)</option>
+            <option value="1" selected>60 min (1h)</option>
+            <option value="1.5">90 min (1.5h)</option>
+        </select>
+        <div class="modal-buttons">
+            <button id="assignSubjectBtn">✅ Asignar</button>
+            <button id="removeSubjectBtn">❌ Quitar</button>
+            <button id="cancelBtn">Cancelar</button>
+        </div>
+    </div>
+
     <script src="scripts.js"></script>
-    <script src="profesores.js" defer></script>
+    <script src="profesores.js"></script>
 </body>
 </html>
