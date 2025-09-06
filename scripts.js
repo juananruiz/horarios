@@ -438,99 +438,167 @@ function renderSchedules() {
 
         title.innerHTML += remainingHoursHtml;
         
-        const table = document.createElement('table');
-        table.className = 'schedule-table';
+        // Crear el calendario estilo Google
+        const calendarContainer = document.createElement('div');
+        calendarContainer.className = 'calendar-container';
         
-        // Header
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        headerRow.innerHTML = '<th>Hora</th>';
+        // Columna de tiempo
+        const timeColumn = document.createElement('div');
+        timeColumn.className = 'time-column';
+        renderTimeColumnForGroup(timeColumn);
+        
+        // Grid del calendario
+        const calendarGrid = document.createElement('div');
+        calendarGrid.className = 'calendar-grid';
+        
+        // Header de días
+        const daysHeader = document.createElement('div');
+        daysHeader.className = 'days-header';
         days.forEach(day => {
-            headerRow.innerHTML += `<th>${day}</th>`;
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-        
-        // Body
-        const tbody = document.createElement('tbody');
-        timeIntervals.forEach((time, index) => {
-            const row = document.createElement('tr');
-            
-            if (index % 4 === 0) {
-                const timeCell = document.createElement('td');
-                timeCell.className = 'time-slot';
-                timeCell.rowSpan = 4;
-                timeCell.textContent = time;
-                row.appendChild(timeCell);
-            }
-
-            if (time >= "12:00" && time < "12:30") {
-                if (time === "12:00") {
-                    const cell = document.createElement('td');
-                    cell.className = 'recreo';
-                    cell.textContent = 'RECREO';
-                    cell.colSpan = days.length;
-                    cell.rowSpan = 2; // 2 * 15min = 30min
-                    row.appendChild(cell);
-                }
-            } else {
-                days.forEach(day => {
-                    // Mover la comprobación aquí, donde 'day' está definido.
-                    if (!schedules[groupName]?.[day]) return;
-
-                    const schedule = schedules[groupName]?.[day]?.[time] || [];
-                    
-                    // Verificación mejorada: Si hay algún elemento de continuación, no renderizar la celda
-                    let isContinuation = false;
-                    if (schedule && schedule.length > 0) {
-                        isContinuation = schedule.every(item => item.isContinuation);
-                    }
-                    
-                    if (isContinuation) {
-                        return; // No renderizar celdas de continuación
-                    }
-
-                    const cell = document.createElement('td');
-                    cell.className = 'class-slot' + (schedule.length > 1 ? ' double-slot' : '');
-                    cell.dataset.group = groupName;
-                    cell.dataset.day = day;
-                    cell.dataset.time = time;
-                    cell.addEventListener('click', () => openSubjectSelector(cell));
-
-                    // Lógica para celdas con múltiples asignaturas
-                    if (schedule && schedule.length > 0) {
-                        cell.classList.add('occupied');
-                        // Asumimos que todas las clases en un slot tienen la misma duración
-                        const firstItem = schedule.find(s => s.isStart) || schedule[0];
-                        const numSlots = (firstItem.duration * 60) / 15;
-                        if (numSlots > 1) cell.rowSpan = numSlots;
-                        cell.innerHTML = schedule.map(s => {
-                            if (s.isStart) { // Solo mostrar las clases que comienzan en este slot
-                                const colorClass = getSubjectClass(s.subject);
-                                return `<div class="class-info-wrapper ${colorClass}">
-                                            <div class="class-info">${s.subject}</div>
-                                            <div class="teacher-info">${s.teacher}</div>
-                                        </div>`;
-                            }
-                            return '';
-                        }).join('');
-                    } else {
-                        cell.innerHTML = '+';
-                    }
-                    row.appendChild(cell);
-                });
-            }
-            
-            tbody.appendChild(row);
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.innerHTML = `<div class="day-name">${day}</div>`;
+            daysHeader.appendChild(dayHeader);
         });
         
-        table.appendChild(tbody);
+        // Grid de la semana
+        const weekGrid = document.createElement('div');
+        weekGrid.className = 'week-grid';
+        
+        days.forEach(day => {
+            const dayColumn = document.createElement('div');
+            dayColumn.className = 'day-column';
+            dayColumn.dataset.group = groupName;
+            dayColumn.dataset.day = day;
+            
+            // Crear slots de 15 minutos para el día
+            renderTimeSlotsForDay(dayColumn, groupName, day);
+            
+            // Renderizar eventos del día
+            renderEventsForDay(dayColumn, groupName, day);
+            
+            weekGrid.appendChild(dayColumn);
+        });
+        
+        calendarGrid.appendChild(daysHeader);
+        calendarGrid.appendChild(weekGrid);
+        
+        calendarContainer.appendChild(timeColumn);
+        calendarContainer.appendChild(calendarGrid);
+        
         groupDiv.appendChild(title);
-        groupDiv.appendChild(table);
+        groupDiv.appendChild(calendarContainer);
         container.appendChild(groupDiv);
     });
     
     setTimeout(checkAllConflicts, 100);
+}
+
+function renderTimeColumnForGroup(timeColumn) {
+    // Crear el header spacer específicamente para alinearse con el header de días
+    const headerSpacer = document.createElement('div');
+    headerSpacer.className = 'time-header-spacer';
+    headerSpacer.style.height = '50px'; // Mismo height que days-header
+    headerSpacer.style.borderBottom = '1px solid #dadce0';
+    timeColumn.appendChild(headerSpacer);
+    
+    // Solo las horas principales, sin slots vacíos
+    const mainHours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
+    
+    mainHours.forEach(time => {
+        // Crear 4 slots para cada hora (00, 15, 30, 45)
+        for (let i = 0; i < 4; i++) {
+            const timeSlot = document.createElement('div');
+            timeSlot.className = 'time-slot';
+            
+            // Mostrar la hora solo en el primer slot de cada hora
+            if (i === 0) {
+                timeSlot.textContent = time;
+                timeSlot.style.fontWeight = '500';
+            } else {
+                timeSlot.textContent = '';
+            }
+            
+            timeColumn.appendChild(timeSlot);
+        }
+    });
+}
+
+function renderTimeSlotsForDay(dayColumn, groupName, day) {
+    timeIntervals.forEach(time => {
+        const timeSlot = document.createElement('div');
+        timeSlot.className = 'time-slot-15';
+        timeSlot.dataset.group = groupName;
+        timeSlot.dataset.day = day;
+        timeSlot.dataset.time = time;
+        timeSlot.addEventListener('click', () => openSubjectSelector(timeSlot));
+        dayColumn.appendChild(timeSlot);
+    });
+}
+
+function renderEventsForDay(dayColumn, groupName, day) {
+    if (!schedules[groupName] || !schedules[groupName][day]) return;
+    
+    // Renderizar recreo solo si no hay clases en ese horario
+    const recreoTime = '12:00';
+    const recreoSchedule = schedules[groupName][day][recreoTime];
+    if (!recreoSchedule || recreoSchedule.length === 0) {
+        const recreoEvent = document.createElement('div');
+        recreoEvent.className = 'calendar-event recreo-event';
+        recreoEvent.textContent = 'RECREO';
+        recreoEvent.style.top = calculateEventPosition('12:00') + 'px';
+        recreoEvent.style.height = '30px'; // 30 minutos
+        dayColumn.appendChild(recreoEvent);
+    }
+    
+    // Renderizar clases normales
+    timeIntervals.forEach(time => {
+        const schedule = schedules[groupName][day][time];
+        if (schedule && schedule.length > 0) {
+            schedule.forEach(item => {
+                if (item.isStart) { // Solo renderizar eventos que empiezan en este slot
+                    const event = document.createElement('div');
+                    event.className = 'calendar-event ' + getSubjectClass(item.subject);
+                    
+                    const startTime = time;
+                    const endTime = calculateEndTime(startTime, item.duration);
+                    
+                    event.innerHTML = `
+                        <div class="event-title">${item.subject}</div>
+                        <div class="event-teacher">${item.teacher}</div>
+                        <div class="event-time">${startTime}-${endTime}</div>
+                    `;
+                    
+                    event.style.top = calculateEventPosition(startTime) + 'px';
+                    event.style.height = (item.duration * 60) + 'px'; // 1 hora = 60px
+                    
+                    event.addEventListener('click', () => {
+                        const fakeCell = {
+                            dataset: { group: groupName, day: day, time: startTime }
+                        };
+                        openSubjectSelector(fakeCell);
+                    });
+                    
+                    dayColumn.appendChild(event);
+                }
+            });
+        }
+    });
+}
+
+function calculateEventPosition(timeStr) {
+    const timeIntervalIndex = timeIntervals.indexOf(timeStr);
+    return timeIntervalIndex * 15; // 15px por cada slot de 15 minutos
+}
+
+function calculateEndTime(startTime, durationHours) {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const startDate = new Date();
+    startDate.setHours(hours, minutes, 0, 0);
+    
+    const endDate = new Date(startDate.getTime() + (durationHours * 60 * 60 * 1000));
+    
+    return endDate.toTimeString().substring(0, 5);
 }
 
 function openSubjectSelector(cell) {
