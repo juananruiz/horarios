@@ -156,7 +156,7 @@ h1, h2, h3, h4 {
 
 h1 {
     font-size: 2rem;
-    text-align: center;
+    text-align: left;
     margin-bottom: var(--spacing-xl);
 }
 
@@ -195,35 +195,110 @@ main {
     flex: 1;
 }
 
-/* 4. Controls & Forms
+/* 4. Controls & Forms - Google Style
 --------------------------------------------------------------------------------------------------------------------------------------*/
 .controls {
     display: flex;
-    gap: var(--spacing-m);
-    margin-bottom: var(--spacing-l);
+    gap: 12px;
+    margin-bottom: 24px;
     flex-wrap: wrap;
     align-items: center;
+    padding: 16px 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    border: 1px solid #e8eaed;
 }
 
+/* Google Style Navigation Buttons */
+.nav-button, .button, button, a.button-link {
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid #dadce0;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    background: #fff;
+    color: #3c4043;
+    white-space: nowrap;
+    min-height: 40px;
+}
+
+/* Primary button style (Google blue) */
+.button.primary, button.primary {
+    background: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+}
+
+.button.primary:hover, button.primary:hover {
+    background: #1557b0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+/* Secondary button style */
+.nav-button:hover, .button:hover, button:hover, a.button-link:hover {
+    background: #f8f9fa;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    border-color: #dadce0;
+}
+
+/* Active/Current page button */
+.nav-button.active, .button.active {
+    background: #e8f0fe;
+    color: #1a73e8;
+    border-color: #1a73e8;
+}
+
+/* Danger button style */
+.button-danger {
+    background: #fff;
+    color: #d93025;
+    border-color: #dadce0;
+}
+
+.button-danger:hover {
+    background: #fce8e6;
+    border-color: #d93025;
+}
+
+/* Small buttons */
+.button-danger-small, .button-edit-small, .button-save-small, .button-cancel-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    min-height: 32px;
+}
+
+/* Form inputs */
 input[type="text"],
 input[type="number"],
 select {
     font-family: inherit;
-    font-size: 1rem;
-    padding: var(--spacing-s) var(--spacing-m);
-    border: 1px solid var(--md-outline);
-    border-radius: var(--border-radius-s);
-    background-color: var(--md-surface);
-    color: var(--md-on-surface);
-    transition: border-color 0.3s, box-shadow 0.3s;
+    font-size: 18px;
+    padding: 10px 16px;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #3c4043;
+    transition: all 0.2s ease;
+    min-height: 40px;
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus,
 select:focus {
     outline: none;
-    border-color: var(--md-primary);
-    box-shadow: 0 0 0 2px var(--md-primary-container);
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
 .form-group {
@@ -235,55 +310,6 @@ select:focus {
     font-weight: 500;
     margin-bottom: var(--spacing-s);
     color: var(--md-on-surface-variant);
-}
-
-/* Buttons */
-.button, button, a.button-link {
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: var(--spacing-s) var(--spacing-l);
-    border-radius: var(--border-radius-m);
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    display: inline-block;
-    transition: background-color 0.3s, box-shadow 0.3s;
-}
-
-.button, button {
-    background-color: var(--md-primary);
-    color: var(--md-on-primary);
-}
-
-.button:hover, button:hover {
-    background-color: #3A4482; /* Darker primary */
-    box-shadow: var(--shadow-2);
-}
-
-.button-danger {
-    background-color: var(--md-error);
-    color: var(--md-on-error);
-}
-
-.button-danger:hover {
-    background-color: #93000A; /* Darker error */
-}
-
-.button-danger-small, .button-edit-small, .button-save-small, .button-cancel-small {
-    padding: var(--spacing-xs) var(--spacing-s);
-    font-size: 0.75rem;
-    border-radius: var(--border-radius-s);
-}
-
-a.button-link {
-    background-color: var(--md-secondary-container);
-    color: var(--md-on-secondary-container);
-}
-
-a.button-link:hover {
-    background-color: #C8C9E3; /* Darker secondary container */
 }
 
 /* 5. Schedule Table
@@ -613,7 +639,7 @@ a.button-link:hover {
 }
 
 .subject-color--mates-lengua {
-    background-color: #F5F5F5 !important; /* Gris Claro */
+    background-color: #DDDDDD !important; /* Gris Claro */
     color: #212121 !important;
 }
 
@@ -652,7 +678,7 @@ a.button-link:hover {
 }
 
 .time-slot {
-    height: 15px;
+    height: 20px;
     border-bottom: 1px solid #f1f3f4;
     display: flex;
     align-items: flex-start;
@@ -664,7 +690,7 @@ a.button-link:hover {
 }
 
 .time-slot-15 {
-    height: 15px;
+    height: 20px;
     border-bottom: 1px solid #f1f3f4;
     position: relative;
     cursor: pointer;
@@ -717,7 +743,7 @@ a.button-link:hover {
     flex: 1;
     position: relative;
     overflow-y: auto;
-    min-height: 380px;
+    min-height: 450px;
 }
 
 .day-column {
@@ -732,18 +758,31 @@ a.button-link:hover {
     right: 2px;
     border-radius: 4px;
     padding: 4px 6px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     z-index: 10;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     overflow: hidden;
+    word-wrap: break-word;
+    line-height: 1.1;
 }
 
 .calendar-event:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 20;
+}
+
+/* Estilos específicos para eventos múltiples */
+.calendar-event.multiple-event {
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.calendar-event.multiple-event:hover {
+    transform: scale(1.02) translateY(-1px);
+    z-index: 25;
 }
 
 .event-title {
@@ -753,7 +792,7 @@ a.button-link:hover {
 }
 
 .event-teacher {
-    font-size: 10px;
+    font-size: 12px;
     opacity: 0.8;
     line-height: 1.1;
 }
@@ -774,13 +813,13 @@ a.button-link:hover {
 
 /* Adaptaciones para mantener compatibilidad con estilos existentes */
 .group-schedule .calendar-container {
-    height: 400px;
+    height: 500px;
 }
 
 .group-schedule .group-title {
     background: #f8f9fa;
     padding: 12px 16px;
     border-bottom: 1px solid #dadce0;
-    font-size: 16px;
+    font-size: 22px;
     font-weight: 500;
 }

@@ -10,38 +10,23 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🏫 Gestor de Horarios CEIP La Paz</h1>
-        
+    <div class="container">       
         <div class="controls">
+            <a href="horario-profesores.html" class="nav-button">🧑‍🏫 Ver por Profesor</a>
+            <a href="gestion-datos.html" class="nav-button">✍️ Gestionar Datos</a>
+            
+            <div style="flex: 1;"></div> <!-- Spacer -->
+            
             <select id="groupFilter">
                 <option value="">Todos los grupos</option>
             </select>
-            <!--
-			<button id="checkConflictsBtn">🔍 Detectar Conflictos</button>
-			-->
-        
-            <button id="exportBtn">💾 Exportar</button>
-            <button id="importBtn">📂 Importar</button>
+            
+            <button id="exportBtn" class="nav-button">💾 Exportar</button>
+            <button id="importBtn" class="nav-button">📂 Importar</button>
             <input type="file" id="importFile" style="display:none" accept=".json">
-            <a href="horario-profesores.html" class="button-link">🧑‍🏫 Ver por Profesor</a>
-            <a href="gestion-datos.html" class="button-link">✍️ Gestionar Datos</a>
         </div>
 
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalClasses">0</div>
-                <div class="stat-label">Clases Asignadas</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="conflictCount">0</div>
-                <div class="stat-label">Conflictos Detectados</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="completionRate">0%</div>
-                <div class="stat-label">Progreso Completado</div>
-            </div>
-        </div>
+		<h1>📅 Horarios por Grupo</h1>
 
         <div class="conflicts-panel" id="conflictsPanel">
             <h3>⚠️ Conflictos Detectados:</h3>
@@ -71,6 +56,19 @@
     </div>
 
     <script src="scripts.js"></script>
-    <script>window.addEventListener('load', initIndexPage);</script>
+    <script>
+        // Marcar botón de navegación activo
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                if (button.href.includes(currentPage)) {
+                    button.classList.add('active');
+                }
+            });
+        });
+        
+        window.addEventListener('load', initIndexPage);
+    </script>
 </body>
 </html>

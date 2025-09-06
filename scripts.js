@@ -302,7 +302,6 @@ function initIndexPage() {
     addEventListeners();
     populateGroupFilter();
     renderSchedules();
-    updateStats();
 }
 
 function buildTeacherSchedules(schedules) {
@@ -414,7 +413,8 @@ function renderSchedules() {
         const totalRequiredHours = calculateTotalRequiredHours(groupName);
         
         let remainingHoursHtml = '';
-        const statusLines = [];
+        const missingLines = [];
+        const surplusLines = [];
         let hasSurplus = false;
 
         Object.keys(totalRequiredHours).forEach(subject => {
@@ -423,15 +423,21 @@ function renderSchedules() {
             const remaining = required - assigned;
             
             if (remaining > 0) {
-                statusLines.push(`<span>${subject}: Faltan ${remaining}h</span>`);
+                missingLines.push(`<span>${subject}: Faltan ${remaining}h</span>`);
             } else if (remaining < 0) {
-                statusLines.push(`<span class="surplus-subject">${subject}: Sobran ${Math.abs(remaining)}h</span>`);
+                surplusLines.push(`<span class="surplus-subject">${subject}: Sobran ${Math.abs(remaining)}h</span>`);
                 hasSurplus = true;
             }
         });
 
-        if (statusLines.length > 0) {
-            remainingHoursHtml = `<div class="remaining-hours ${hasSurplus ? 'has-surplus' : ''}">${statusLines.join('<br>')}</div>`;
+        if (missingLines.length > 0 || surplusLines.length > 0) {
+            const missingColumn = missingLines.length > 0 ? missingLines.join('<br>') : '';
+            const surplusColumn = surplusLines.length > 0 ? surplusLines.join('<br>') : '';
+            
+            remainingHoursHtml = `<div class="remaining-hours ${hasSurplus ? 'has-surplus' : ''}" style="display: flex; gap: 20px;">
+                <div style="flex: 1;">${missingColumn}</div>
+                <div style="flex: 1;">${surplusColumn}</div>
+            </div>`;
         } else {
             remainingHoursHtml = `<div class="remaining-hours">Todas las horas asignadas</div>`;
         }
@@ -502,25 +508,20 @@ function renderTimeColumnForGroup(timeColumn) {
     headerSpacer.style.borderBottom = '1px solid #dadce0';
     timeColumn.appendChild(headerSpacer);
     
-    // Solo las horas principales, sin slots vacíos
-    const mainHours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
-    
-    mainHours.forEach(time => {
-        // Crear 4 slots para cada hora (00, 15, 30, 45)
-        for (let i = 0; i < 4; i++) {
-            const timeSlot = document.createElement('div');
-            timeSlot.className = 'time-slot';
-            
-            // Mostrar la hora solo en el primer slot de cada hora
-            if (i === 0) {
-                timeSlot.textContent = time;
-                timeSlot.style.fontWeight = '500';
-            } else {
-                timeSlot.textContent = '';
-            }
-            
-            timeColumn.appendChild(timeSlot);
+    // Usar exactamente los mismos intervalos que timeIntervals
+    timeIntervals.forEach((time, index) => {
+        const timeSlot = document.createElement('div');
+        timeSlot.className = 'time-slot';
+        
+        // Mostrar la hora solo cada 4 slots (cada hora completa)
+        if (index % 4 === 0) {
+            timeSlot.textContent = time;
+            timeSlot.style.fontWeight = '500';
+        } else {
+            timeSlot.textContent = '';
         }
+        
+        timeColumn.appendChild(timeSlot);
     });
 }
 
@@ -547,48 +548,90 @@ function renderEventsForDay(dayColumn, groupName, day) {
         recreoEvent.className = 'calendar-event recreo-event';
         recreoEvent.textContent = 'RECREO';
         recreoEvent.style.top = calculateEventPosition('12:00') + 'px';
-        recreoEvent.style.height = '30px'; // 30 minutos
+        recreoEvent.style.height = '40px'; // 30 minutos = 2 slots * 20px
         dayColumn.appendChild(recreoEvent);
     }
     
-    // Renderizar clases normales
+    // Agrupar eventos por hora de inicio para detectar coincidencias
+    const eventsByStartTime = {};
+    
     timeIntervals.forEach(time => {
         const schedule = schedules[groupName][day][time];
         if (schedule && schedule.length > 0) {
-            schedule.forEach(item => {
-                if (item.isStart) { // Solo renderizar eventos que empiezan en este slot
-                    const event = document.createElement('div');
-                    event.className = 'calendar-event ' + getSubjectClass(item.subject);
-                    
-                    const startTime = time;
-                    const endTime = calculateEndTime(startTime, item.duration);
-                    
-                    event.innerHTML = `
-                        <div class="event-title">${item.subject}</div>
-                        <div class="event-teacher">${item.teacher}</div>
-                        <div class="event-time">${startTime}-${endTime}</div>
-                    `;
-                    
-                    event.style.top = calculateEventPosition(startTime) + 'px';
-                    event.style.height = (item.duration * 60) + 'px'; // 1 hora = 60px
-                    
-                    event.addEventListener('click', () => {
-                        const fakeCell = {
-                            dataset: { group: groupName, day: day, time: startTime }
-                        };
-                        openSubjectSelector(fakeCell);
-                    });
-                    
-                    dayColumn.appendChild(event);
-                }
-            });
+            const startingEvents = schedule.filter(item => item.isStart);
+            if (startingEvents.length > 0) {
+                eventsByStartTime[time] = startingEvents;
+            }
         }
+    });
+    
+    // Renderizar eventos, posicionando múltiples eventos lado a lado
+    Object.keys(eventsByStartTime).forEach(startTime => {
+        const events = eventsByStartTime[startTime];
+        const numEvents = events.length;
+        
+        events.forEach((item, index) => {
+            const event = document.createElement('div');
+            event.className = 'calendar-event ' + getSubjectClass(item.subject);
+            
+            // Añadir clase para eventos múltiples
+            if (numEvents > 1) {
+                event.classList.add('multiple-event');
+            }
+            
+            const endTime = calculateEndTime(startTime, item.duration);
+            
+            event.innerHTML = `
+                <div class="event-title">${item.subject}</div>
+                <div class="event-teacher">${item.teacher}</div>
+                <div class="event-time">${startTime}-${endTime}</div>
+            `;
+            
+            event.style.top = calculateEventPosition(startTime) + 'px';
+            event.style.height = (item.duration * 80) + 'px'; // 1 hora = 80px
+            
+            // Posicionar eventos lado a lado cuando hay múltiples
+            if (numEvents > 1) {
+                const eventWidth = Math.floor(98 / numEvents); // 98% del ancho dividido entre eventos
+                const leftOffset = (index * eventWidth) + 1; // 1% de margen
+                
+                event.style.left = leftOffset + '%';
+                event.style.width = eventWidth + '%';
+                event.style.right = 'auto'; // Desactivar right para usar width
+                
+                // Reducir padding y font-size para eventos múltiples
+                event.style.padding = '2px 4px';
+                event.style.fontSize = '10px';
+                
+                // Hacer el texto más compacto
+                const eventTitle = event.querySelector('.event-title');
+                const eventTeacher = event.querySelector('.event-teacher');
+                const eventTime = event.querySelector('.event-time');
+                
+                if (eventTitle) eventTitle.style.fontSize = '10px';
+                if (eventTeacher) eventTeacher.style.fontSize = '8px';
+                if (eventTime) eventTime.style.fontSize = '8px';
+            } else {
+                // Evento único, usar posicionamiento normal
+                event.style.left = '2px';
+                event.style.right = '2px';
+            }
+            
+            event.addEventListener('click', () => {
+                const fakeCell = {
+                    dataset: { group: groupName, day: day, time: startTime }
+                };
+                openSubjectSelector(fakeCell);
+            });
+            
+            dayColumn.appendChild(event);
+        });
     });
 }
 
 function calculateEventPosition(timeStr) {
     const timeIntervalIndex = timeIntervals.indexOf(timeStr);
-    return timeIntervalIndex * 15; // 15px por cada slot de 15 minutos
+    return timeIntervalIndex * 20; // 20px por cada slot de 15 minutos
 }
 
 function calculateEndTime(startTime, durationHours) {
@@ -768,7 +811,6 @@ function assignSubject() {
     
     closeModal();
     renderSchedules();
-    updateStats();
     saveSchedulesToStorage();
 }
 
@@ -870,7 +912,6 @@ function removeSubject(shouldRender = true, cellInfo = currentEditingCell) {
     if (shouldRender) {
         closeModal();
         renderSchedules();
-        updateStats();
     }
 }
 
@@ -896,7 +937,6 @@ function removeSubjectLegacy(itemToRemove, startTime, group, day, shouldRender) 
     if (shouldRender) {
         closeModal();
         renderSchedules();
-        updateStats();
     }
 }
 
@@ -962,17 +1002,11 @@ function checkAllConflicts() {
     
     displayConflicts(conflicts);
     highlightConflicts(conflicts);
-    updateStats();
 }
 
 function displayConflicts(conflicts) {
     const panel = document.getElementById('conflictsPanel');
     const list = document.getElementById('conflictsList');
-    const conflictCountEl = document.getElementById('conflictCount');
-
-    if (conflictCountEl) {
-        conflictCountEl.textContent = conflicts.length;
-    }
 
     // Si el panel no existe, salir
     if (!panel || !list) return;
@@ -1033,48 +1067,6 @@ function highlightConflicts(conflicts) {
             }
         });
     });
-}
-
-function updateStats() {
-    const totalClassesEl = document.getElementById('totalClasses');
-    const completionRateEl = document.getElementById('completionRate');
-    const conflictCountEl = document.getElementById('conflictCount');
-
-    // Early return si no existen los elementos
-    if (!totalClassesEl || !completionRateEl || !conflictCountEl) return;
-
-    let totalAssigned = 0;
-    let totalRequired = 0;
-
-    Object.keys(groups).forEach(group => {
-        const groupData = groups[group];
-        if (!groupData || !groupData.subjects) return;
-
-        // Calcular horas requeridas
-        Object.values(groupData.subjects).forEach(subject => {
-            totalRequired += subject.hours || 0;
-        });
-
-        // Calcular horas asignadas
-        if (schedules[group]) {
-            Object.values(schedules[group]).forEach(daySchedule => {
-                Object.values(daySchedule).forEach(timeSlot => {
-                    if (Array.isArray(timeSlot)) {
-                        timeSlot.forEach(item => {
-                            if (item.isStart) {
-                                totalAssigned += item.duration || 1;
-                            }
-                        });
-                    }
-                });
-            });
-        }
-    });
-
-    totalClassesEl.textContent = Math.round(totalAssigned * 100) / 100;
-    
-    const completionRate = totalRequired > 0 ? Math.round((totalAssigned / totalRequired) * 100) : 0;
-    completionRateEl.textContent = completionRate + '%';
 }
 
 function calculateAssignedHours(groupName) {

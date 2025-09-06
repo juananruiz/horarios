@@ -11,11 +11,18 @@
 </head>
 <body>
     <div class="container">
-        <h1>🧑‍🏫 Horarios por Profesor</h1>
         
         <div class="controls">
-            <a href="index.html" class="button-link">📅 Ver horarios por grupo</a>
+            <a href="index.html" class="nav-button">📅 Ver por Grupo</a>
+            <a href="gestion-datos.html" class="nav-button">✍️ Gestionar Datos</a>
+            
+            <div style="flex: 1;"></div> <!-- Spacer -->
+            
+            <button id="exportBtn" class="nav-button">💾 Exportar</button>
+            <button id="importBtn" class="nav-button">📂 Importar</button>
+            <input type="file" id="importFile" style="display:none" accept=".json">
         </div>
+        <h1>🧑‍🏫 Horarios por Profesor</h1>
 
         <div class="schedule-container" id="scheduleContainer">
             <!-- Los horarios de los profesores se generarán aquí -->
@@ -45,5 +52,21 @@
 
     <script src="scripts.js"></script>
     <script src="profesores.js"></script>
+    <script>
+        // Marcar botón de navegación activo
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                if (button.href.includes(currentPage)) {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Inicializar botones de exportar/importar
+            initializeAppData();
+            addEventListeners();
+        });
+    </script>
 </body>
 </html>

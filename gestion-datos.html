@@ -11,10 +11,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>✍️ Gestión de Datos</h1>
         <div class="controls">
-             <a href="index.html" class="button-link">📅 Ver Horarios</a>
+            <a href="index.html" class="nav-button">📅 Ver por Grupo</a>
+            <a href="horario-profesores.html" class="nav-button">🧑‍🏫 Ver por Profesor</a>
+            
+            <div style="flex: 1;"></div> <!-- Spacer -->
+            
+            <button id="exportBtn" class="nav-button">💾 Exportar</button>
+            <button id="importBtn" class="nav-button">📂 Importar</button>
+            <input type="file" id="importFile" style="display:none" accept=".json">
         </div>
+        <h1>✍️ Gestión de Datos</h1>
 
         <main style="display: flex; gap: 24px; flex-wrap: wrap;">
 
@@ -102,5 +109,21 @@
 
     <script src="scripts.js"></script>
     <script src="gestion-datos.js"></script>
+    <script>
+        // Marcar botón de navegación activo
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                if (button.href.includes(currentPage)) {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Inicializar botones de exportar/importar
+            initializeAppData();
+            addEventListeners();
+        });
+    </script>
 </body>
 </html>
