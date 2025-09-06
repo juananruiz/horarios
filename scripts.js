@@ -50,23 +50,30 @@ const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
 const subjectClassMapping = {
     'cono': 'cono',
-    'inglés': 'ingles',
-    'francés': 'frances',
-    'música': 'musica',
-    'plástica': 'plastica',
-    'religión': 'religion',
+    'ingles': 'ingles',
+    'frances': 'frances',
+    'musica': 'musica',
+    'plastica': 'plastica',
+    'religion': 'religion',
     'mates': 'mates-lengua',
     'lengua': 'mates-lengua',
     'fisica': 'ed-fisica',
+    'ed fisica': 'ed-fisica',
+    'educacion fisica': 'ed-fisica',
     'refuerzo': 'refuerzo'
 };
 
 function getSubjectClass(subjectName) {
     if (!subjectName) return '';
     
-    const lowerSubject = subjectName.toLowerCase();
+    // Normalizar el nombre: quitar acentos, puntos y convertir a minúsculas
+    const normalizedSubject = subjectName.toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+        .replace(/\./g, ''); // Quitar puntos
+    
     const mappingKey = Object.keys(subjectClassMapping).find(key => 
-        lowerSubject.includes(key)
+        normalizedSubject.includes(key)
     );
     
     return mappingKey ? `subject-color--${subjectClassMapping[mappingKey]}` : '';
