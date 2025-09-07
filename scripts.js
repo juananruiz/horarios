@@ -1149,56 +1149,83 @@ function importData() {
 }
 
 function addEventListeners() {
-    document.getElementById('groupFilter').addEventListener('change', renderSchedules);
+    // Solo agregar listener al filtro de grupos si existe (página principal)
+    const groupFilter = document.getElementById('groupFilter');
+    if (groupFilter) {
+        groupFilter.addEventListener('change', renderSchedules);
+    }
     
-    document.getElementById('exportBtn').addEventListener('click', exportData);
-    document.getElementById('importBtn').addEventListener('click', importData);
+    // Event listeners para botones de export/import (existen en todas las páginas)
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportData);
+    }
+    if (importBtn) {
+        importBtn.addEventListener('click', importData);
+    }
 
-    document.getElementById('assignSubjectBtn').addEventListener('click', assignSubject);
-    document.getElementById('removeSubjectBtn').addEventListener('click', () => removeSubject(true));
-    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    // Event listeners para modal de asignaturas (solo en algunas páginas)
+    const assignBtn = document.getElementById('assignSubjectBtn');
+    const removeBtn = document.getElementById('removeSubjectBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    
+    if (assignBtn) {
+        assignBtn.addEventListener('click', assignSubject);
+    }
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => removeSubject(true));
+    }
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeModal);
+    }
 
-    document.getElementById('importFile').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                const data = JSON.parse(event.target.result);
-                let message = '';
+    // Event listener para el input de importar archivo
+    const importFile = document.getElementById('importFile');
+    if (importFile) {
+        importFile.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    let message = '';
 
-                if (data.groups) {
-                    groups = data.groups;
-                    saveGroupsData();
-                    message += 'Datos de grupos importados. ';
+                    if (data.groups) {
+                        groups = data.groups;
+                        saveGroupsData();
+                        message += 'Datos de grupos importados. ';
+                    }
+
+                    if (data.teachers) {
+                        teachers = data.teachers;
+                        saveTeachersData();
+                        message += 'Datos de profesores importados. ';
+                    }
+
+                    if (data.schedules) {
+                        schedules = data.schedules;
+                        saveSchedulesToStorage();
+                        message += 'Datos de horarios importados.';
+                    }
+
+                    if (message) {
+                        alert(message + ' La página se recargará para aplicar los cambios.');
+                        location.reload();
+                    } else {
+                        alert('El archivo no contiene datos reconocibles (groups, teachers o schedules).');
+                    }
+
+                } catch (error) {
+                    alert('Error al importar el archivo: ' + error.message);
                 }
-
-                if (data.teachers) {
-                    teachers = data.teachers;
-                    saveTeachersData();
-                    message += 'Datos de profesores importados. ';
-                }
-
-                if (data.schedules) {
-                    schedules = data.schedules;
-                    saveSchedulesToStorage();
-                    message += 'Datos de horarios importados.';
-                }
-
-                if (message) {
-                    alert(message + ' La página se recargará para aplicar los cambios.');
-                    location.reload();
-                } else {
-                    alert('El archivo no contiene datos reconocibles (groups, teachers o schedules).');
-                }
-
-            } catch (error) {
-                alert('Error al importar el archivo: ' + error.message);
-            }
-        };
-        reader.readAsText(file);
-    });
+            };
+            reader.readAsText(file);
+        });
+    }
 
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 }

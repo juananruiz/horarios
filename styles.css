@@ -560,7 +560,7 @@ select:focus {
 /* 8. Compact Teacher Schedule Specifics
 --------------------------------------------------------------------------------------------------------------------------------------*/
 .teacher-schedule-compact {
-    font-size: 12px; /* Reducir tamaño de fuente general */
+    font-size: 14px; /* Reducir tamaño de fuente general */
     border-collapse: collapse; /* Bordes más finos */
 }
 
@@ -618,57 +618,46 @@ select:focus {
 --------------------------------------------------------------------------------------------------------------------------------------*/
 .subject-color--cono {
     background-color: #C8E6C9 !important; /* Verde */
-    color: #1B5E20 !important;
 }
 
 .subject-color--ingles {
     background-color: #BBDEFB !important; /* Azul */
-    color: #0D47A1 !important;
 }
 
 .subject-color--frances {
     background-color: #FFCDD2 !important; /* Rojo */
-    color: #B71C1C !important;
 }
 
 .subject-color--musica {
     background-color: #E1BEE7 !important; /* Morado */
-    color: #4A148C !important;
 }
 
 .subject-color--plastica {
     background-color: #FFF9C4 !important; /* Amarillo */
-    color: #F57F17 !important;
 }
 
 .subject-color--religion {
     background-color: #D7CCC8 !important; /* Marrón */
-    color: #3E2723 !important;
 }
 
 .subject-color--mates-lengua {
-    background-color: #DDDDDD !important; /* Gris Claro */
-    color: #212121 !important;
+    background-color: #98eefb !important; /* Gris Claro */
 }
 
 .subject-color--ed-fisica {
     background-color: #F8BBD0 !important; /* Rosa */
-    color: #880E4F !important;
 }
 
 .subject-color--refuerzo {
-    background-color: #FFE0B2 !important; /* Naranja */
-    color: #E65100 !important;
+    background-color: #ffe0b3 !important; /* Naranja */
 }
 
 .subject-color--at-edu {
     background-color: #FFCCBC !important; /* Naranja rojizo pastel */
-    color: #D84315 !important;
 }
 
 .subject-color--coord-admin {
     background-color: #B2DFDB !important; /* Verde azulado pastel */
-    color: #00695C !important;
 }
 
 /* Nuevos estilos para calendario estilo Google */
