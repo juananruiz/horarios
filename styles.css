@@ -409,6 +409,14 @@ select:focus {
     animation: pulse 1.5s infinite ease-in-out;
 }
 
+/* También aplicar a los eventos del calendario moderno */
+.calendar-event.conflict {
+    background-color: var(--conflict-bg) !important;
+    border: 2px solid var(--conflict-border) !important;
+    color: var(--conflict-text) !important;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }
@@ -691,7 +699,7 @@ select:focus {
 
 .time-slot-15 {
     height: 20px;
-    border-bottom: 1px solid #f1f3f4;
+    border-bottom: 1px solid #e8e8e8;
     position: relative;
     cursor: pointer;
     transition: background 0.2s;

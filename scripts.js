@@ -581,6 +581,13 @@ function renderEventsForDay(dayColumn, groupName, day) {
             const event = document.createElement('div');
             event.className = 'calendar-event ' + getSubjectClass(item.subject);
             
+            // Agregar atributos data para identificar el evento en conflictos
+            event.dataset.group = groupName;
+            event.dataset.day = day;
+            event.dataset.time = startTime;
+            event.dataset.teacher = item.teacher;
+            event.dataset.subject = item.subject;
+            
             // Añadir clase para eventos múltiples
             if (numEvents > 1) {
                 event.classList.add('multiple-event');
@@ -1042,7 +1049,7 @@ function displayConflicts(conflicts) {
 
 function highlightConflicts(conflicts) {
     // Limpiar los conflictos de ambas vistas para evitar inconsistencias
-    document.querySelectorAll('.class-slot.conflict, .teacher-schedule-compact td.conflict').forEach(cell => {
+    document.querySelectorAll('.class-slot.conflict, .teacher-schedule-compact td.conflict, .calendar-event.conflict').forEach(cell => {
         cell.classList.remove('conflict');
     });
 
@@ -1061,8 +1068,15 @@ function highlightConflicts(conflicts) {
             
             let cell;
             if (isGroupView) {
-                const cellSelector = `.class-slot[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"]`;
-                cell = document.querySelector(cellSelector);
+                // Intentar con la nueva vista de calendario primero
+                const calendarEventSelector = `.calendar-event[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"][data-teacher="${conflict.teacher}"]`;
+                cell = document.querySelector(calendarEventSelector);
+                
+                // Si no lo encuentra, intentar con la vista clásica
+                if (!cell) {
+                    const cellSelector = `.class-slot[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"]`;
+                    cell = document.querySelector(cellSelector);
+                }
             } else { // Asumimos que es la vista de profesor
                 const teacher = conflict.teacher;
                 const cellSelector = `td[data-teacher="${teacher}"][data-day="${day}"][data-time="${startTime}"]`;
