@@ -445,7 +445,7 @@ select:focus {
     box-shadow: var(--shadow-2);
     display: none;
     width: 90%;
-    max-width: 400px;
+    max-width: 500px;
 }
 
 .subject-selector h4 {

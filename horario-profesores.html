@@ -59,7 +59,7 @@
             const currentPage = window.location.pathname.split('/').pop() || 'index.html';
             const navButtons = document.querySelectorAll('.nav-button');
             navButtons.forEach(button => {
-                if (button.href.includes(currentPage)) {
+                if (button.href && button.href.includes(currentPage)) {
                     button.classList.add('active');
                 }
             });
