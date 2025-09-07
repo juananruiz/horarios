@@ -60,7 +60,13 @@ const subjectClassMapping = {
     'fisica': 'ed-fisica',
     'ed fisica': 'ed-fisica',
     'educacion fisica': 'ed-fisica',
-    'refuerzo': 'refuerzo'
+    'refuerzo': 'refuerzo',
+    'at edu': 'at-edu',
+    'atencion educativa': 'at-edu',
+    'coord': 'coord-admin',
+    'direcc': 'coord-admin',
+    'jef': 'coord-admin',
+    'secr': 'coord-admin'
 };
 
 function getSubjectClass(subjectName) {

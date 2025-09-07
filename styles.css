@@ -661,6 +661,16 @@ select:focus {
     color: #E65100 !important;
 }
 
+.subject-color--at-edu {
+    background-color: #FFCCBC !important; /* Naranja rojizo pastel */
+    color: #D84315 !important;
+}
+
+.subject-color--coord-admin {
+    background-color: #B2DFDB !important; /* Verde azulado pastel */
+    color: #00695C !important;
+}
+
 /* Nuevos estilos para calendario estilo Google */
 .calendar-container {
     display: flex;
