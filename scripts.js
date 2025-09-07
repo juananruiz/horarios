@@ -1065,15 +1065,16 @@ function highlightConflicts(conflicts) {
     conflicts.forEach(conflict => {
         const [day, timeKey] = conflict.time.split('-', 2);
         
-        conflict.groups.forEach(groupInfo => {
-            let startTime = timeKey;
-            const scheduleItems = schedules[groupInfo.group][day][timeKey];
-            if (scheduleItems.length > 0 && scheduleItems[0].isContinuation) {
-                startTime = scheduleItems[0].startTime;
-            }
-            
-            let cell;
-            if (isGroupView) {
+        if (isGroupView) {
+            // Vista de grupos - aplicar conflicto a cada grupo involucrado
+            conflict.groups.forEach(groupInfo => {
+                let startTime = timeKey;
+                const scheduleItems = schedules[groupInfo.group][day][timeKey];
+                if (scheduleItems.length > 0 && scheduleItems[0].isContinuation) {
+                    startTime = scheduleItems[0].startTime;
+                }
+                
+                let cell;
                 // Intentar con la nueva vista de calendario primero
                 const calendarEventSelector = `.calendar-event[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"][data-teacher="${conflict.teacher}"]`;
                 cell = document.querySelector(calendarEventSelector);
@@ -1083,16 +1084,23 @@ function highlightConflicts(conflicts) {
                     const cellSelector = `.class-slot[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"]`;
                     cell = document.querySelector(cellSelector);
                 }
-            } else { // Asumimos que es la vista de profesor
-                const teacher = conflict.teacher;
-                const cellSelector = `td[data-teacher="${teacher}"][data-day="${day}"][data-time="${startTime}"]`;
-                cell = document.querySelector(cellSelector);
-            }
+                
+                if (cell) {
+                    cell.classList.add('conflict');
+                }
+            });
+        } else {
+            // Vista de profesores - aplicar conflicto a la celda del profesor específico
+            const teacher = conflict.teacher;
+            const cellSelector = `td[data-teacher="${teacher}"][data-day="${day}"][data-time="${timeKey}"]`;
+            const cell = document.querySelector(cellSelector);
             
             if (cell) {
                 cell.classList.add('conflict');
+                // Agregar información del conflicto a la celda para uso posterior
+                cell.dataset.conflictGroups = JSON.stringify(conflict.groups);
             }
-        });
+        }
     });
 }
 

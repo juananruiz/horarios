@@ -24,6 +24,11 @@
         </div>
         <h1>🧑‍🏫 Horarios por Profesor</h1>
 
+        <div class="conflicts-panel" id="conflictsPanel">
+            <h3>⚠️ Conflictos Detectados:</h3>
+            <div id="conflictsList"></div>
+        </div>
+
         <div class="schedule-container" id="scheduleContainer">
             <!-- Los horarios de los profesores se generarán aquí -->
         </div>
@@ -32,6 +37,17 @@
     <!-- Modal para seleccionar asignatura -->
     <div class="subject-selector" id="subjectSelector">
         <h4>Seleccionar Asignatura</h4>
+        
+        <!-- Área de información de conflictos -->
+        <div id="conflictInfo" class="conflict-info" style="display: none;">
+            <div class="conflict-warning">
+                <strong>⚠️ CONFLICTO DETECTADO</strong>
+                <p>Este profesor tiene múltiples asignaciones en este horario:</p>
+                <div id="conflictDetails"></div>
+                <p><strong>¿Qué deseas hacer?</strong></p>
+            </div>
+        </div>
+        
         <select id="groupSelect" style="margin-bottom: 10px; width: 100%;">
             <option value="">-- Seleccionar Grupo --</option>
         </select>
@@ -47,6 +63,7 @@
         <div class="modal-buttons">
             <button id="assignSubjectBtn">✅ Asignar</button>
             <button id="removeSubjectBtn">❌ Quitar</button>
+            <button id="resolveConflictBtn" style="display: none;">🔧 Resolver Conflicto</button>
             <button id="cancelBtn">Cancelar</button>
         </div>
     </div>

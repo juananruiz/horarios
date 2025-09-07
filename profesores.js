@@ -18,6 +18,12 @@ function addProfesoresEventListeners() {
     document.getElementById('removeSubjectBtn').addEventListener('click', () => removeSubjectForTeacher(true));
     document.getElementById('cancelBtn').addEventListener('click', closeTeacherModal);
     document.getElementById('groupSelect').addEventListener('change', populateSubjectSelectForTeacher);
+    
+    // Event listener para resolver conflictos
+    const resolveConflictBtn = document.getElementById('resolveConflictBtn');
+    if (resolveConflictBtn) {
+        resolveConflictBtn.addEventListener('click', showConflictResolutionOptions);
+    }
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -42,10 +48,34 @@ function openTeacherModal(cell, teacherName, day, time) {
     const subjectSelect = document.getElementById('subjectSelect');
     const durationSelect = document.getElementById('durationSelect');
     const removeBtn = document.getElementById('removeSubjectBtn');
+    const conflictInfo = document.getElementById('conflictInfo');
+    const conflictDetails = document.getElementById('conflictDetails');
+    const resolveConflictBtn = document.getElementById('resolveConflictBtn');
 
     // Resetear selects
     groupSelect.innerHTML = '<option value="">-- Seleccionar Grupo --</option>';
     subjectSelect.innerHTML = '<option value="">-- Seleccionar Asignatura --</option>';
+
+    // Verificar si hay conflictos en esta celda
+    const hasConflict = cell.classList.contains('conflict');
+    const conflictGroups = hasConflict ? JSON.parse(cell.dataset.conflictGroups || '[]') : [];
+
+    if (hasConflict && conflictGroups.length > 1) {
+        // Mostrar información del conflicto
+        conflictInfo.style.display = 'block';
+        resolveConflictBtn.style.display = 'inline-block';
+        
+        let conflictHtml = '<ul>';
+        conflictGroups.forEach(group => {
+            conflictHtml += `<li><strong>${group.group}</strong>: ${group.subject}</li>`;
+        });
+        conflictHtml += '</ul>';
+        conflictDetails.innerHTML = conflictHtml;
+    } else {
+        // Ocultar información del conflicto
+        conflictInfo.style.display = 'none';
+        resolveConflictBtn.style.display = 'none';
+    }
 
     // Llenar el selector de grupos
     Object.keys(groups).sort((a, b) => (groups[a].orden || 0) - (groups[b].orden || 0)).forEach(groupName => {
@@ -359,6 +389,91 @@ function renderCompactTeacherSchedule() {
     container.appendChild(table);
     
     setTimeout(checkAllConflicts, 100);
+}
+
+/**
+ * Muestra las opciones para resolver un conflicto
+ */
+function showConflictResolutionOptions() {
+    if (!currentTeacherEditingCell || !currentTeacherEditingCell.cell.classList.contains('conflict')) {
+        return;
+    }
+
+    const { cell, teacherName, day, time } = currentTeacherEditingCell;
+    const conflictGroups = JSON.parse(cell.dataset.conflictGroups || '[]');
+
+    if (conflictGroups.length < 2) {
+        alert('No se detectaron conflictos para resolver.');
+        return;
+    }
+
+    // Crear un diálogo para seleccionar qué asignación mantener
+    let message = `El profesor ${teacherName} tiene conflicto el ${day} a las ${time}:\n\n`;
+    conflictGroups.forEach((group, index) => {
+        message += `${index + 1}. ${group.group}: ${group.subject}\n`;
+    });
+    message += `\n¿Cuál quieres MANTENER? (1-${conflictGroups.length}) o 0 para cancelar:`;
+
+    const choice = prompt(message);
+    const choiceNum = parseInt(choice);
+
+    if (choiceNum === 0 || isNaN(choiceNum) || choiceNum < 1 || choiceNum > conflictGroups.length) {
+        return; // Cancelar
+    }
+
+    const keepGroup = conflictGroups[choiceNum - 1];
+    const removeGroups = conflictGroups.filter((_, index) => index !== (choiceNum - 1));
+
+    // Confirmar la acción
+    const confirmMessage = `¿Estás seguro de que quieres:\n\nMANTENER: ${keepGroup.group} - ${keepGroup.subject}\nELIMINAR: ${removeGroups.map(g => `${g.group} - ${g.subject}`).join(', ')}\n\n¿Continuar?`;
+    
+    if (confirm(confirmMessage)) {
+        resolveConflictByRemoving(teacherName, day, time, removeGroups);
+    }
+}
+
+/**
+ * Resuelve un conflicto eliminando las asignaciones especificadas
+ */
+function resolveConflictByRemoving(teacherName, day, time, groupsToRemove) {
+    groupsToRemove.forEach(groupInfo => {
+        // Encontrar y eliminar la asignación del schedule
+        const groupName = groupInfo.group;
+        if (schedules[groupName] && schedules[groupName][day] && schedules[groupName][day][time]) {
+            const scheduleItems = schedules[groupName][day][time];
+            
+            // Filtrar para mantener solo las asignaciones que no coincidan
+            schedules[groupName][day][time] = scheduleItems.filter(item => 
+                !(item.teacher === teacherName && item.subject === groupInfo.subject)
+            );
+            
+            // Eliminar también las continuaciones
+            const startItem = scheduleItems.find(item => item.isStart && item.teacher === teacherName && item.subject === groupInfo.subject);
+            if (startItem && startItem.duration) {
+                const duration = startItem.duration;
+                const numSlots = (duration * 60) / 15;
+                let currentTime = new Date(`1970-01-01T${time}:00`);
+                
+                for (let i = 0; i < numSlots; i++) {
+                    const slotTime = currentTime.toTimeString().substring(0, 5);
+                    if (schedules[groupName][day][slotTime]) {
+                        schedules[groupName][day][slotTime] = schedules[groupName][day][slotTime].filter(item => 
+                            !(item.teacher === teacherName && (item.subject === groupInfo.subject || item.startTime === time))
+                        );
+                    }
+                    currentTime.setMinutes(currentTime.getMinutes() + 15);
+                }
+            }
+        }
+    });
+
+    // Guardar cambios y re-renderizar
+    saveSchedulesToStorage();
+    closeTeacherModal();
+    renderCompactTeacherSchedule();
+    
+    // Mostrar notificación
+    alert('Conflicto resuelto exitosamente. Los horarios han sido actualizados.');
 }
 
 // Iniciar la página al cargar el script

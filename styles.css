@@ -417,6 +417,14 @@ select:focus {
     animation: pulse 1.5s infinite ease-in-out;
 }
 
+/* También aplicar a las celdas de la tabla de profesores */
+.teacher-schedule-compact td.conflict {
+    background-color: var(--conflict-bg) !important;
+    border: 2px solid var(--conflict-border) !important;
+    color: var(--conflict-text) !important;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }
@@ -484,6 +492,43 @@ select:focus {
 
 .conflict-item {
     font-size: 0.875rem;
+}
+
+/* Estilos para el área de conflictos en el modal */
+.conflict-info {
+    background-color: var(--conflict-bg);
+    border: 1px solid var(--conflict-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.conflict-warning {
+    color: var(--conflict-text);
+}
+
+.conflict-warning strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.conflict-warning p {
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+#conflictDetails {
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    padding: 8px;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+#resolveConflictBtn {
+    background-color: var(--md-primary);
+    color: var(--md-on-primary);
 }
 
 /* 7. Stats & Misc
