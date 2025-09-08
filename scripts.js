@@ -1062,43 +1062,99 @@ function highlightConflicts(conflicts) {
     // Determinar en qué vista estamos. La vista de grupos tiene el filtro.
     const isGroupView = !!document.getElementById('groupFilter');
 
+    // Para la vista de profesores, pre-calcular el horario una sola vez
+    let teacherSchedules = null;
+    if (!isGroupView) {
+        teacherSchedules = buildTeacherSchedules(schedules);
+    }
+
     conflicts.forEach(conflict => {
         const [day, timeKey] = conflict.time.split('-', 2);
         
         if (isGroupView) {
             // Vista de grupos - aplicar conflicto a cada grupo involucrado
             conflict.groups.forEach(groupInfo => {
-                let startTime = timeKey;
-                const scheduleItems = schedules[groupInfo.group][day][timeKey];
-                if (scheduleItems.length > 0 && scheduleItems[0].isContinuation) {
-                    startTime = scheduleItems[0].startTime;
-                }
+                // Buscar el evento por profesor y grupo, sin importar el tiempo exacto
+                // ya que el conflicto puede estar en cualquier slot que ocupe la clase
+                const eventSelector = `.calendar-event[data-group="${groupInfo.group}"][data-day="${day}"][data-teacher="${conflict.teacher}"]`;
+                const event = document.querySelector(eventSelector);
                 
-                let cell;
-                // Intentar con la nueva vista de calendario primero
-                const calendarEventSelector = `.calendar-event[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"][data-teacher="${conflict.teacher}"]`;
-                cell = document.querySelector(calendarEventSelector);
-                
-                // Si no lo encuentra, intentar con la vista clásica
-                if (!cell) {
-                    const cellSelector = `.class-slot[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"]`;
-                    cell = document.querySelector(cellSelector);
-                }
-                
-                if (cell) {
-                    cell.classList.add('conflict');
+                if (event) {
+                    event.classList.add('conflict');
+                } else {
+                    // Fallback: buscar por el tiempo específico del conflicto
+                    let startTime = timeKey;
+                    const scheduleItems = schedules[groupInfo.group][day][timeKey];
+                    if (scheduleItems && scheduleItems.length > 0 && scheduleItems[0].isContinuation) {
+                        startTime = scheduleItems[0].startTime;
+                    }
+                    
+                    let cell;
+                    // Intentar con la nueva vista de calendario primero
+                    const calendarEventSelector = `.calendar-event[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"][data-teacher="${conflict.teacher}"]`;
+                    cell = document.querySelector(calendarEventSelector);
+                    
+                    // Si no lo encuentra, intentar con la vista clásica
+                    if (!cell) {
+                        const cellSelector = `.class-slot[data-group="${groupInfo.group}"][data-day="${day}"][data-time="${startTime}"]`;
+                        cell = document.querySelector(cellSelector);
+                    }
+                    
+                    if (cell) {
+                        cell.classList.add('conflict');
+                    }
                 }
             });
         } else {
             // Vista de profesores - aplicar conflicto a la celda del profesor específico
             const teacher = conflict.teacher;
-            const cellSelector = `td[data-teacher="${teacher}"][data-day="${day}"][data-time="${timeKey}"]`;
-            const cell = document.querySelector(cellSelector);
             
-            if (cell) {
-                cell.classList.add('conflict');
+            // Buscar la celda del profesor que está en conflicto
+            let conflictCell = null;
+            
+            // Primero intentar coincidencia exacta con el tiempo del conflicto
+            conflictCell = document.querySelector(`td[data-teacher="${teacher}"][data-day="${day}"][data-time="${timeKey}"]`);
+            
+            // Si no encuentra coincidencia exacta, buscar celdas ocupadas del profesor en ese día
+            if (!conflictCell) {
+                const teacherCells = document.querySelectorAll(`td[data-teacher="${teacher}"][data-day="${day}"].occupied`);
+                
+                // Para cada celda ocupada, verificar si se solapa con el tiempo del conflicto
+                for (const cell of teacherCells) {
+                    const cellTime = cell.dataset.time;
+                    
+                    // Usar el horario pre-calculado
+                    const teacherDaySchedule = teacherSchedules[teacher]?.[day];
+                    
+                    if (teacherDaySchedule && teacherDaySchedule[cellTime]) {
+                        const scheduleItem = teacherDaySchedule[cellTime][0]; // Tomar el primer item
+                        
+                        if (scheduleItem && scheduleItem.isStart) {
+                            const duration = scheduleItem.duration || 1;
+                            const numSlots = (duration * 60) / 15;
+                            const startTime = new Date(`1970-01-01T${cellTime}:00`);
+                            
+                            // Verificar si algún slot de esta clase coincide con el tiempo del conflicto
+                            for (let i = 0; i < numSlots; i++) {
+                                const currentSlot = new Date(startTime.getTime() + (i * 15 * 60 * 1000));
+                                const slotTimeStr = currentSlot.toTimeString().substring(0, 5);
+                                
+                                if (slotTimeStr === timeKey) {
+                                    conflictCell = cell;
+                                    break;
+                                }
+                            }
+                            
+                            if (conflictCell) break;
+                        }
+                    }
+                }
+            }
+            
+            if (conflictCell) {
+                conflictCell.classList.add('conflict');
                 // Agregar información del conflicto a la celda para uso posterior
-                cell.dataset.conflictGroups = JSON.stringify(conflict.groups);
+                conflictCell.dataset.conflictGroups = JSON.stringify(conflict.groups);
             }
         }
     });
@@ -1133,6 +1189,7 @@ function calculateTotalRequiredHours(groupName) {
     });
     return required;
 }
+
 
 function exportData() {
     const data = {

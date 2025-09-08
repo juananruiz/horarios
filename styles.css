@@ -494,41 +494,38 @@ select:focus {
     font-size: 0.875rem;
 }
 
-/* Estilos para el área de conflictos en el modal */
-.conflict-info {
+/* Estilos para el área de conflictos simplificada en el modal */
+.conflict-info-simple {
     background-color: var(--conflict-bg);
     border: 1px solid var(--conflict-border);
     border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 16px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.conflict-warning {
+.conflict-indicator {
     color: var(--conflict-text);
-}
-
-.conflict-warning strong {
-    display: block;
-    margin-bottom: 8px;
+    font-weight: bold;
     font-size: 14px;
 }
 
-.conflict-warning p {
-    margin: 8px 0;
-    font-size: 13px;
-}
-
-#conflictDetails {
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 4px;
-    padding: 8px;
-    margin: 8px 0;
-    font-size: 12px;
-}
-
-#resolveConflictBtn {
+.resolve-btn {
     background-color: var(--md-primary);
     color: var(--md-on-primary);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.resolve-btn:hover {
+    background-color: var(--md-primary-container);
+    color: var(--md-on-primary-container);
 }
 
 /* 7. Stats & Misc
