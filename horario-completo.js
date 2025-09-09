@@ -234,6 +234,7 @@ function addFullScheduleStyles() {
         }
         
         /* Colores específicos para diferentes duraciones */
+        .duration-050 { min-height: 12px; }
         .duration-075 { min-height: 18px; }
         .duration-100 { min-height: 24px; }
         .duration-125 { min-height: 30px; }
