@@ -515,27 +515,78 @@ function showFullScheduleItemSelector(element, teacherName, day, time, items) {
     const selector = document.createElement('div');
     selector.className = 'item-selector';
 
-    let selectorHTML = '<div style="font-weight: bold; padding: 8px; background: #f5f5f5; border-bottom: 1px solid #ccc;">Seleccionar clase:</div>';
+    let selectorHTML = '<div style="font-weight: bold; padding: 8px; background: #f5f5f5; border-bottom: 1px solid #ccc;">Opciones para conflicto:</div>';
     
     items.forEach((item, index) => {
         selectorHTML += `
             <div class="selector-item" 
                  data-index="${index}"
                  title="${item.subject} - ${item.group} (${item.duration}h)">
-                ${index + 1}. ${item.subject}
-                <div style="font-size: 10px; color: #666;">${item.group} • ${item.duration}h</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%">
+                    <span>
+                        ${index + 1}. ${item.subject}
+                        <div style="font-size: 10px; color: #666;">${item.group} • ${item.duration}h</div>
+                    </span>
+                    <span class="selector-actions">
+                        <button class="micro-button edit" data-index="${index}">✏️</button>
+                        <button class="micro-button delete" data-index="${index}">🗑️</button>
+                    </span>
+                </div>
             </div>
         `;
     });
     
     selectorHTML += `
         <div class="selector-item" 
-             data-action="cancel">
-            Cancelar
+             data-action="add"
+             style="background-color: #e6f7e6; color: #2e7d32;">
+            ➕ Añadir nueva clase
+        </div>
+        <div class="selector-item" 
+             data-action="cancel"
+             style="background-color: #f5f5f5;">
+            ❌ Cancelar
         </div>
     `;
 
     selector.innerHTML = selectorHTML;
+
+    // Añadir un estilo para los micro-botones
+    const microButtonStyle = document.createElement('style');
+    microButtonStyle.textContent = `
+        .micro-button {
+            padding: 2px 4px;
+            border: none;
+            border-radius: 3px;
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            background: none;
+        }
+        .micro-button:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        .micro-button.edit:hover {
+            color: #1976d2;
+        }
+        .micro-button.delete:hover {
+            color: #d32f2f;
+        }
+        .selector-actions {
+            display: flex;
+            align-items: center;
+        }
+        .selector-item {
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .selector-item:hover {
+            background-color: #f9f9f9;
+        }
+    `;
+    document.head.appendChild(microButtonStyle);
 
     // Posicionar el selector
     const rect = element.getBoundingClientRect();
@@ -555,21 +606,37 @@ function showFullScheduleItemSelector(element, teacherName, day, time, items) {
 
     document.body.appendChild(selector);
 
-    // Event listeners para las opciones
+    // Event listeners para las opciones principales
     selector.querySelectorAll('.selector-item').forEach(option => {        
-        option.addEventListener('click', () => {
-            selector.remove();
+        option.addEventListener('click', (e) => {
+            // Si el clic fue en un botón, no hacer nada (los botones tienen sus propios listeners)
+            if (e.target.classList.contains('micro-button')) {
+                return;
+            }
             
             const action = option.dataset.action;
             const index = option.dataset.index;
             
             if (action === 'cancel') {
+                selector.remove();
+                return;
+            }
+            
+            if (action === 'add') {
+                selector.remove();
+                currentFullScheduleEditingCell = {
+                    cell: element,
+                    teacherName: teacherName,
+                    day: day,
+                    time: time,
+                    scheduleData: null // Crear nuevo
+                };
+                openFullScheduleModal(element, teacherName, day, time);
                 return;
             }
             
             if (index !== undefined) {
                 const selectedItem = items[parseInt(index)];
-                console.log('✅ Usuario seleccionó item:', selectedItem);
                 
                 // Guardar la referencia del elemento y el item seleccionado
                 currentFullScheduleEditingCell = {
@@ -580,8 +647,51 @@ function showFullScheduleItemSelector(element, teacherName, day, time, items) {
                     scheduleData: selectedItem
                 };
                 
+                selector.remove();
                 // Abrir modal para el item seleccionado
                 openFullScheduleModal(element, teacherName, day, time);
+            }
+        });
+    });
+    
+    // Event listeners para los botones de edición
+    selector.querySelectorAll('.micro-button.edit').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const index = button.dataset.index;
+            const selectedItem = items[parseInt(index)];
+            
+            currentFullScheduleEditingCell = {
+                cell: element,
+                teacherName: teacherName,
+                day: day,
+                time: time,
+                scheduleData: selectedItem
+            };
+            
+            selector.remove();
+            openFullScheduleModal(element, teacherName, day, time);
+        });
+    });
+    
+    // Event listeners para los botones de eliminación
+    selector.querySelectorAll('.micro-button.delete').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const index = button.dataset.index;
+            const selectedItem = items[parseInt(index)];
+            
+            if (confirm(`¿Estás seguro de eliminar ${selectedItem.subject} del grupo ${selectedItem.group}?`)) {
+                currentFullScheduleEditingCell = {
+                    cell: element,
+                    teacherName: teacherName,
+                    day: day,
+                    time: time,
+                    scheduleData: selectedItem
+                };
+                
+                selector.remove();
+                removeSubjectForFullSchedule(true);
             }
         });
     });
