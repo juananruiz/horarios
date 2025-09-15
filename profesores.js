@@ -167,10 +167,11 @@ function addMultipleScheduleStyles() {
         .event-subject {
             font-weight: 600;
             margin-bottom: 1px;
+            font-size: 12px;  /* Aumentado de sin tamaño específico */
         }
         
         .event-group {
-            font-size: 9px;
+            font-size: 10px;  /* Aumentado de 9px */
             opacity: 0.8;
         }
         
@@ -189,16 +190,16 @@ function addMultipleScheduleStyles() {
         
         .conflict-indicator {
             font-weight: 700;
-            font-size: 10px;
+            font-size: 12px;  /* Aumentado de 10px */
         }
         
         .conflict-count {
-            font-size: 9px;
+            font-size: 11px;  /* Aumentado de 9px */
             margin: 1px 0;
         }
         
         .conflict-action {
-            font-size: 8px;
+            font-size: 10px;  /* Aumentado de 8px */
             opacity: 0.8;
         }
         

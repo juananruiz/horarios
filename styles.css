@@ -838,6 +838,7 @@ select:focus {
     font-weight: 500;
     line-height: 1.2;
     margin-bottom: 2px;
+    font-size: 13px;  /* Añadido tamaño explícito */
 }
 
 .event-teacher {

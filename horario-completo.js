@@ -163,11 +163,11 @@ function addFullScheduleStyles() {
         .event-subject {
             font-weight: 600;
             margin-bottom: 2px;
-            font-size: 12px;
+            font-size: 13px;  /* Aumentado de 12px */
         }
         
         .event-group {
-            font-size: 10px;
+            font-size: 11px;  /* Aumentado de 10px */
             opacity: 0.8;
         }
         
