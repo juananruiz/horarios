@@ -307,7 +307,7 @@ function renderFullScheduleView() {
         
         // Calcular carga lectiva
         const teachingLoad = calculateTeachingLoadForTeacher(teacherName);
-        teacherHeader.innerHTML = `
+        teacherHeader.innerHTML = ` 
             <div style="font-weight: 700; font-size: 12px;">${teacherName}</div>
             <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">${teachingLoad}h/sem</div>
         `;
