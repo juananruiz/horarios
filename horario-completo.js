@@ -251,6 +251,15 @@ function addFullScheduleEventListeners() {
     document.getElementById('removeSubjectBtn').addEventListener('click', () => removeSubjectForFullSchedule(true));
     document.getElementById('cancelBtn').addEventListener('click', closeFullScheduleModal);
     document.getElementById('groupSelect').addEventListener('change', populateSubjectSelectForFullSchedule);
+    
+    // Event listener para el botón de impresión
+    const printBtn = document.getElementById('printBtn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            alert('Para imprimir correctamente:\n\n1. Usa Ctrl+P (o Cmd+P en Mac)\n2. Selecciona formato A3 horizontal\n3. Asegúrate de activar "Imprimir fondos" o "Imprimir colores de fondo"\n4. Los botones de navegación se ocultarán automáticamente');
+            window.print();
+        });
+    }
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -299,7 +308,7 @@ function renderFullScheduleView() {
         // Calcular carga lectiva
         const teachingLoad = calculateTeachingLoadForTeacher(teacherName);
         teacherHeader.innerHTML = `
-            <div style="font-weight: 700; font-size: 14px;">${teacherName}</div>
+            <div style="font-weight: 700; font-size: 12px;">${teacherName}</div>
             <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">${teachingLoad}h/sem</div>
         `;
         scheduleGrid.appendChild(teacherHeader);

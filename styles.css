@@ -873,3 +873,117 @@ select:focus {
     font-size: 22px;
     font-weight: 500;
 }
+
+/* 10. Reglas para impresión
+--------------------------------------------------------------------------------------------------------------------------------------*/
+@media print {
+    @page {
+        size: A3 landscape;
+        margin: 5mm;
+    }
+    
+    /* Ocultar elementos innecesarios al imprimir */
+    .controls, .button-container, .conflicts-panel, .modal, button, 
+    .nav-button, #exportBtn, #importBtn, #importFile {
+        display: none !important;
+    }
+    
+    /* Ajustes globales */
+    body {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: white !important;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Ajustes para la vista completa */
+    .full-schedule-container {
+        width: 100% !important;
+        page-break-inside: avoid;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    
+    .full-schedule-grid {
+        width: 100% !important;
+        font-size: 6pt !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        grid-template-columns: 45px repeat(var(--teacher-count), minmax(70px, 1fr)) !important;
+    }
+    
+    /* Asegurar que se muestran los colores */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Ajustes para optimizar espacio */
+    .schedule-event {
+        padding: 1px !important;
+        font-size: 5pt !important;
+        line-height: 1.0 !important;
+        border-radius: 1px !important;
+    }
+    
+    .event-subject {
+        font-size: 10px !important;
+        margin-bottom: 0px !important;
+        font-weight: 700 !important;
+        line-height: 1.0 !important;
+    }
+    
+    .event-group {
+        font-size: 9px !important;
+        opacity: 0.9 !important;
+        line-height: 1.0 !important;
+    }
+    
+    /* Ajustar columnas para optimizar espacio */
+    .time-column {
+        width: 45px !important;
+        min-width: 45px !important;
+        max-width: 45px !important;
+    }
+    
+    .teacher-column {
+        min-width: 70px !important;
+        max-width: 85px !important;
+    }
+    
+    /* Ajustar celdas */
+    .time-cell, .schedule-cell {
+        min-height: 18px !important;
+        padding: 0 !important;
+        border-right: 0.5px solid #ccc !important;
+        border-bottom: 0.5px solid #ccc !important;
+    }
+    
+    /* Ajustar encabezados */
+    .time-header, .teacher-header {
+        font-size: 4pt !important;
+        padding: 2px !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Ajustar título */
+    h1 {
+        font-size: 16pt !important;
+        margin: 0 0 5mm 0 !important;
+        text-align: center !important;
+        page-break-after: avoid;
+    }
+    
+    /* Evitar saltos de página dentro de filas */
+    .time-row {
+        page-break-inside: avoid;
+    }
+}
