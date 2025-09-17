@@ -897,37 +897,39 @@ select:focus {
     background: #f0f0f0;
     font-weight: bold;
     font-size: 12px;
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
 }
 
 .compact-teacher-header {
     background: #f0f0f0;
     font-weight: bold;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
     width: 25px;
     min-width: 25px;
     max-width: 25px;
     height: 120px;
     font-size: 8px;
     padding: 4px 2px;
+    position: relative;
+    vertical-align: middle;
+    text-align: center;
 }
 
 .teacher-name-vertical {
     transform: rotate(-90deg);
     white-space: nowrap;
-    font-size: 7px;
+    font-size: 10px;
     font-weight: 600;
+    position: absolute;
+    left: -40px;
+    top: 50px;
+    width: 100px;
 }
 
 .compact-time-cell {
     background: #f8f8f8;
     font-weight: 500;
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 15px;
+    min-width: 15px;
+    max-width: 15px;
     font-size: 9px;
 }
 
@@ -963,7 +965,7 @@ select:focus {
 }
 
 .compact-event-item {
-    font-size: 6px;
+    font-size: 8px;
     font-weight: 600;
     line-height: 1.0;
     padding: 0.5px;
@@ -1128,36 +1130,36 @@ select:focus {
     }
     
     .compact-teacher-header {
-        font-size: 4pt !important;
+        font-size: 6pt !important;
         width: 15px !important;
         height: 80px !important;
     }
     
     .teacher-name-vertical {
-        font-size: 4pt !important;
+        font-size: 7pt !important;
     }
     
     .compact-time-cell {
-        font-size: 5pt !important;
+        font-size: 6pt !important;
         width: 40px !important;
     }
     
     .day-label {
-        font-size: 4pt !important;
+        font-size: 6pt !important;
     }
     
     .time-label {
-        font-size: 4pt !important;
+        font-size: 6pt !important;
     }
     
     .compact-schedule-cell {
-        width: 15px !important;
+        width: 14px !important;
         height: 15px !important;
         padding: 0.5px !important;
     }
     
     .compact-event-item {
-        font-size: 4pt !important;
+        font-size: 7pt !important;
         font-weight: bold !important;
         line-height: 1.0 !important;
     }
