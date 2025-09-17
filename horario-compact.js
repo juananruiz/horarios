@@ -82,6 +82,8 @@ function renderCompactScheduleView() {
     // Crear tabla principal
     const table = document.createElement('table');
     table.className = 'compact-schedule-table';
+    table.style.width = '100%';
+    table.style.tableLayout = 'fixed';
 
     // Crear encabezado con los nombres de profesores
     const thead = document.createElement('thead');
@@ -113,6 +115,7 @@ function renderCompactScheduleView() {
     teachers.forEach(teacher => {
         const teacherCell = document.createElement('th');
         teacherCell.className = 'compact-teacher-header';
+        teacherCell.style.width = '25px'; // Ancho fijo más estrecho
         
         // Crear contenido vertical del nombre del profesor
         const teacherName = teacher.name.toUpperCase();
@@ -387,7 +390,7 @@ function addCompactScheduleStyles() {
 
         .compact-schedule-grid {
             display: grid;
-            grid-template-columns: 60px repeat(var(--teacher-count), 1fr);
+            grid-template-columns: 40px repeat(var(--teacher-count), 1fr);
             min-width: 100%;
             overflow-x: auto;
         }
@@ -395,7 +398,7 @@ function addCompactScheduleStyles() {
         .compact-time-header {
             background: var(--md-surface-variant);
             color: var(--md-on-surface-variant);
-            padding: 6px;
+            padding: 4px;
             text-align: center;
             font-weight: 600;
             border-right: 1px solid var(--md-outline);
@@ -403,7 +406,7 @@ function addCompactScheduleStyles() {
             position: sticky;
             left: 0;
             z-index: 2;
-            font-size: 12px;
+            font-size: 14px; /* Aumentado en 2pt */
         }
 
         .compact-teacher-header {
@@ -414,7 +417,7 @@ function addCompactScheduleStyles() {
             font-weight: 600;
             border-right: 1px solid var(--md-outline);
             border-bottom: 2px solid var(--md-outline);
-            font-size: 10px;
+            font-size: 12px; /* Aumentado en 2pt */
             writing-mode: vertical-rl;
             text-orientation: mixed;
             white-space: nowrap;
@@ -441,7 +444,7 @@ function addCompactScheduleStyles() {
             border-bottom: 1px solid var(--md-outline);
             padding: 4px;
             text-align: center;
-            font-size: 10px;
+            font-size: 12px; /* Aumentado en 2pt */
             font-weight: 500;
             min-height: 25px;
             display: flex;
@@ -471,7 +474,7 @@ function addCompactScheduleStyles() {
             bottom: 1px;
             border-radius: 2px;
             padding: 2px;
-            font-size: 9px;
+            font-size: 11px; /* Aumentado en 2pt */
             font-weight: 600;
             text-align: center;
             line-height: 1.1;
@@ -483,13 +486,13 @@ function addCompactScheduleStyles() {
         }
 
         .compact-event-subject {
-            font-size: 10px;
+            font-size: 12px; /* Aumentado en 2pt */
             font-weight: 700;
             line-height: 1.0;
         }
 
         .compact-event-group {
-            font-size: 8px;
+            font-size: 10px; /* Aumentado en 2pt */
             opacity: 0.8;
             line-height: 1.0;
         }
@@ -513,7 +516,21 @@ function addCompactScheduleStyles() {
             font-weight: 700;
             border-right: 1px solid var(--md-outline);
             border-bottom: 1px solid var(--md-outline);
-            font-size: 11px;
+            font-size: 13px; /* Aumentado en 2pt */
+        }
+        
+        /* Estilo específico para impresión */
+        @media print {
+            /* Aumentar tamaño de fuente solo al imprimir */
+            .compact-time-header,
+            .compact-teacher-header,
+            .compact-time-cell,
+            .compact-schedule-event,
+            .compact-event-subject,
+            .compact-event-group,
+            .compact-teacher-id {
+                font-size: calc(100% + 2pt);
+            }
         }
     `;
 
