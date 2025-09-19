@@ -1,0 +1,345 @@
+/* Estilos para el horario completo estilo Gmail */
+
+.schedule-main {
+    padding: 0;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 120px);
+}
+
+.toolbar {
+    background: white;
+    border-bottom: 1px solid #dadce0;
+    padding: 12px 0;
+    box-shadow: 0 1px 3px rgba(60,64,67,.12);
+}
+
+.toolbar-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid #dadce0;
+    background: white;
+    color: #3c4043;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn:hover {
+    background: #f8f9fa;
+    box-shadow: 0 1px 3px rgba(60,64,67,.12);
+}
+
+.btn-primary {
+    background: #1a73e8;
+    color: white;
+    border-color: #1a73e8;
+}
+
+.btn-primary:hover {
+    background: #1557b0;
+}
+
+.schedule-container {
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 0 24px;
+}
+
+.gmail-schedule-wrapper {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(60,64,67,.12), 0 1px 2px rgba(60,64,67,.24);
+    overflow: hidden;
+}
+
+.schedule-header {
+    display: grid;
+    grid-template-columns: 100px repeat(5, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #dadce0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.time-column-header {
+    padding: 16px 12px;
+    font-weight: 500;
+    color: #5f6368;
+    font-size: 14px;
+    border-right: 1px solid #dadce0;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.day-column-header {
+    padding: 16px 12px;
+    font-weight: 500;
+    color: #3c4043;
+    font-size: 14px;
+    text-align: center;
+    border-right: 1px solid #dadce0;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.day-column-header:last-child {
+    border-right: none;
+}
+
+.schedule-content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.time-row {
+    display: grid;
+    grid-template-columns: 100px repeat(5, 1fr);
+    border-bottom: 1px solid #dadce0;
+    min-height: 80px;
+}
+
+.time-row:last-child {
+    border-bottom: none;
+}
+
+.time-label {
+    padding: 16px 12px;
+    font-weight: 500;
+    color: #5f6368;
+    font-size: 13px;
+    background: #fafbfc;
+    border-right: 1px solid #dadce0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+}
+
+.schedule-cell {
+    padding: 8px;
+    border-right: 1px solid #dadce0;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    background: white;
+}
+
+.schedule-cell:last-child {
+    border-right: none;
+}
+
+.schedule-cell:hover {
+    background: #f8f9fa;
+}
+
+.empty-slot {
+    color: #9aa0a6;
+    font-size: 12px;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    opacity: 0.7;
+}
+
+.class-card {
+    background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+    color: white;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.3;
+    box-shadow: 0 1px 3px rgba(26,115,232,.3);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.class-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(26,115,232,.4);
+}
+
+.class-card:nth-child(2n) {
+    background: linear-gradient(135deg, #34a853 0%, #4caf50 100%);
+    box-shadow: 0 1px 3px rgba(52,168,83,.3);
+}
+
+.class-card:nth-child(2n):hover {
+    box-shadow: 0 2px 6px rgba(52,168,83,.4);
+}
+
+.class-card:nth-child(3n) {
+    background: linear-gradient(135deg, #ea4335 0%, #f44336 100%);
+    box-shadow: 0 1px 3px rgba(234,67,53,.3);
+}
+
+.class-card:nth-child(3n):hover {
+    box-shadow: 0 2px 6px rgba(234,67,53,.4);
+}
+
+.class-card:nth-child(4n) {
+    background: linear-gradient(135deg, #fbbc04 0%, #ff9800 100%);
+    box-shadow: 0 1px 3px rgba(251,188,4,.3);
+}
+
+.class-card:nth-child(4n):hover {
+    box-shadow: 0 2px 6px rgba(251,188,4,.4);
+}
+
+.class-subject {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.class-group {
+    font-size: 11px;
+    opacity: 0.9;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.class-teacher {
+    font-size: 10px;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .schedule-container {
+        padding: 0 16px;
+        margin: 16px auto;
+    }
+    
+    .schedule-header,
+    .time-row {
+        grid-template-columns: 80px repeat(5, 1fr);
+    }
+    
+    .time-column-header,
+    .time-label {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+    
+    .day-column-header {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .toolbar-content {
+        padding: 0 16px;
+        flex-wrap: wrap;
+    }
+    
+    .schedule-container {
+        padding: 0 8px;
+        margin: 12px auto;
+    }
+    
+    .gmail-schedule-wrapper {
+        border-radius: 4px;
+    }
+    
+    .schedule-header,
+    .time-row {
+        grid-template-columns: 60px repeat(5, 1fr);
+    }
+    
+    .time-column-header,
+    .time-label {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+    
+    .day-column-header {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    
+    .schedule-cell {
+        padding: 4px;
+        min-height: 60px;
+    }
+    
+    .class-card {
+        padding: 6px;
+        font-size: 11px;
+    }
+    
+    .class-subject {
+        font-size: 12px;
+    }
+    
+    .class-group {
+        font-size: 10px;
+    }
+    
+    .class-teacher {
+        font-size: 9px;
+    }
+}
+
+/* Estilos para impresión */
+@media print {
+    .toolbar {
+        display: none;
+    }
+    
+    .schedule-main {
+        padding: 0;
+        background: white;
+    }
+    
+    .gmail-schedule-wrapper {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .class-card {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        border: 1px solid #ccc;
+    }
+    
+    .schedule-content {
+        max-height: none;
+        overflow: visible;
+    }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario Compacto - Gestor de Horarios</title>
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="stylesheet" href="../../styles/pages/horario-compact.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Horario Compacto</h1>
+                <div class="user-info">
+                    <span id="currentUser">Usuario de Prueba</span>
+                    <span id="currentCentro">Centro de Prueba</span>
+                    <button onclick="window.location.href='/index.html'" class="btn btn-secondary">Volver</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-content">
+                <button id="printBtn" class="btn btn-primary">
+                    <span>🖨️</span> Imprimir
+                </button>
+                <button id="exportBtn" class="btn btn-secondary">
+                    <span>📄</span> Exportar PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="compact-main">
+            <div id="compactScheduleContainer" class="compact-schedule-container">
+                <!-- El horario compacto se generará aquí -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Script sin módulos para evitar errores -->
+    <script src="horario-compact.js"></script>
+    <script>
+        // Inicializar la página cuando se cargue
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initCompactSchedulePage === 'function') {
+                initCompactSchedulePage();
+            } else {
+                console.error('La función initCompactSchedulePage no está definida');
+            }
+        });
+    </script>
+</body>
+</html>

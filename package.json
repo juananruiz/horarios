@@ -1,0 +1,28 @@
+{
+  "name": "gestor-horarios-multicentro",
+  "version": "1.0.0",
+  "description": "Gestor de horarios para centros de primaria - Multiusuario y multicentro",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'Build process - TBD'",
+    "test": "echo 'Tests - TBD'",
+    "migrate": "node database/migrations/run-migrations.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "keywords": [
+    "horarios",
+    "educacion",
+    "primaria",
+    "supabase",
+    "multiusuario"
+  ],
+  "author": "Juan Antonio Ruiz",
+  "license": "MIT"
+}

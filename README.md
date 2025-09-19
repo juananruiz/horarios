@@ -15,7 +15,7 @@ Este proyecto es una herramienta web moderna, intuitiva y flexible para la **ges
 ## 🖥️ ¿Qué puedes hacer?
 
 - Consultar horarios **por grupo** y **por profesor**.
-- Visualizar un **horario completo del centro** en una sola pantalla. ¡La sábana!
+- Visualizar un **horario completo del centro** en una sola pantalla. ¡La sábana! 👻
 - Editar horarios de forma visual, asignando materias y profesores con solo unos clics.
 - Exportar o importar horarios para compartirlos fácilmente entre miembros del equipo.
 - Gestionar grupos y profesores desde una interfaz amigable.

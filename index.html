@@ -3,77 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Horarios CEIP La Paz</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <title>Gestor de Horarios - Dashboard</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="stylesheet" href="src/styles/pages/dashboard.css">
 </head>
 <body>
-    <div class="container">       
-        <div class="controls">
-            <a href="horario-profesores.html" class="nav-button">🧑‍🏫 Ver por Profesor</a>
-            <a href="horario-completo.html" class="nav-button">📊 Horario Completo</a>
-            <a href="horario-compact.html" class="nav-button">📋 Vista Compacta</a>
-            <a href="gestion-datos.html" class="nav-button">✍️ Gestionar Datos</a>
-            
-            <div style="flex: 1;"></div> <!-- Spacer -->
-            
-            <select id="groupFilter">
-                <option value="">Todos los grupos</option>
-            </select>
-            
-            <button id="exportBtn" class="nav-button">💾 Exportar</button>
-            <button id="importBtn" class="nav-button">📂 Importar</button>
-            <input type="file" id="importFile" style="display:none" accept=".json">
-        </div>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Gestor de Horarios</h1>
+                <div class="user-info">
+                    <span id="currentUser">Usuario de Prueba</span>
+                    <span id="currentCentro">Centro de Prueba</span>
+                    <button id="logoutBtn" class="btn btn-secondary">Configurar</button>
+                </div>
+            </div>
+        </header>
 
-		<h1>📅 Horarios por Grupo</h1>
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <div class="nav-content">
+                <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+                <a href="#" class="nav-link" data-page="schedules">Horarios</a>
+                <a href="#" class="nav-link" data-page="management">Gestión</a>
+                <a href="#" class="nav-link" data-page="reports">Reportes</a>
+            </div>
+        </nav>
 
-        <div class="conflicts-panel" id="conflictsPanel">
-            <h3>⚠️ Conflictos Detectados:</h3>
-            <div id="conflictsList"></div>
-        </div>
-
-        <div class="schedule-container" id="scheduleContainer">
-        </div>
+        <!-- Main Content -->
+        <main class="app-main">
+            <div id="dashboard-page" class="page active">
+                <h2>Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Horarios</h3>
+                        <div class="card-actions">
+                            <a href="src/pages/schedules/horario-completo.html" class="btn">Ver Horario Completo</a>
+                            <a href="src/pages/schedules/horario-compact.html" class="btn">Vista Compacta</a>
+                            <a href="src/pages/schedules/horario-profesores.html" class="btn">Horario Profesores</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>Gestión</h3>
+                        <div class="card-actions">
+                            <a href="src/pages/management/gestion-datos.html" class="btn">Gestión de Datos</a>
+                            <a href="src/pages/management/profesores.html" class="btn">Profesores</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>Administración</h3>
+                        <div class="card-actions">
+                            <button class="btn" onclick="showCentrosManagement()">Gestionar Centros</button>
+                            <button class="btn" onclick="showUsersManagement()">Gestionar Usuarios</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Modal para seleccionar asignatura -->
-    <div class="subject-selector" id="subjectSelector">
-        <h4>Seleccionar Asignatura</h4>
-        <select id="subjectSelect">
-            <option value="">-- Seleccionar --</option>
-        </select>
-        <select id="durationSelect">
-            <option value="0.5">30 min (0.5h)</option>
-            <option value="0.75">45 min (0.75h)</option>
-            <option value="1" selected>60 min (1h)</option>
-            <option value="1.25">75 min (1.25h)</option>
-            <option value="1.5">90 min (1.5h)</option>
-        </select>
-        <div class="modal-buttons">
-            <button id="assignSubjectBtn">✅ Asignar</button>
-            <button id="removeSubjectBtn">❌ Quitar</button>
-            <button id="cancelBtn">Cancelar</button>
-        </div>
-    </div>
-
-    <script src="debug-config.js"></script>
-    <script src="scripts.js"></script>
+    <!-- Script simplificado sin autenticación -->
     <script>
-        // Marcar botón de navegación activo
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            const navButtons = document.querySelectorAll('.nav-button');
-            navButtons.forEach(button => {
-                if (button.href && button.href.includes(currentPage)) {
-                    button.classList.add('active');
-                }
+        // Configurar navegación
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remover clase active de todos los links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Agregar clase active al link clickeado
+                    link.classList.add('active');
+                    
+                    const page = link.dataset.page;
+                    console.log(`Navegando a: ${page}`);
+                });
             });
+            
+            // Configurar botón de configuración
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    alert('Configuración - Funcionalidad en desarrollo');
+                });
+            }
         });
-        
-        window.addEventListener('load', initIndexPage);
+
+        // Funciones globales para los botones de administración
+        function showCentrosManagement() {
+            alert('Gestión de Centros - Funcionalidad en desarrollo');
+        }
+
+        function showUsersManagement() {
+            alert('Gestión de Usuarios - Funcionalidad en desarrollo');
+        }
     </script>
 </body>
 </html>

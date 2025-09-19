@@ -1,0 +1,89 @@
+/horacole
+├── README.md
+├── package.json                    # Dependencias del proyecto
+├── .gitignore
+├── index.html                      # Página principal/dashboard
+│
+├── public/                         # Archivos estáticos públicos
+│   ├── favicon.ico
+│   └── images/
+│       └── Captura de pantalla 2025-09-15 a las 19.38.12.png
+│
+├── src/                           # Código fuente principal
+│   ├── config/                    # Configuraciones
+│   │   ├── supabase-config.js
+│   │   └── app-config.js
+│   │
+│   ├── services/                  # Servicios y lógica de negocio
+│   │   ├── auth.js
+│   │   ├── data-service.js
+│   │   └── migration-service.js
+│   │
+│   ├── components/                # Componentes reutilizables
+│   │   ├── common/
+│   │   │   ├── header.js
+│   │   │   ├── sidebar.js
+│   │   │   └── modal.js
+│   │   ├── schedule/
+│   │   │   ├── schedule-grid.js
+│   │   │   ├── schedule-cell.js
+│   │   │   └── schedule-utils.js
+│   │   └── forms/
+│   │       ├── login-form.js
+│   │       ├── teacher-form.js
+│   │       └── group-form.js
+│   │
+│   ├── pages/                     # Páginas específicas
+│   │   ├── auth/
+│   │   │   ├── login.html
+│   │   │   └── login.js
+│   │   ├── schedules/
+│   │   │   ├── horario-completo.html
+│   │   │   ├── horario-completo.js
+│   │   │   ├── horario-compact.html
+│   │   │   ├── horario-compact.js
+│   │   │   ├── horario-profesores.html
+│   │   │   └── horario-profesores.js
+│   │   └── management/
+│   │       ├── gestion-datos.html
+│   │       ├── gestion-datos.js
+│   │       └── profesores.js
+│   │
+│   ├── styles/                    # Estilos CSS
+│   │   ├── main.css              # Estilos principales
+│   │   ├── components/           # Estilos por componente
+│   │   │   ├── schedule.css
+│   │   │   ├── forms.css
+│   │   │   └── auth.css
+│   │   └── pages/               # Estilos por página
+│   │       ├── dashboard.css
+│   │       └── compact.css
+│   │
+│   ├── utils/                    # Utilidades y helpers
+│   │   ├── date-utils.js
+│   │   ├── format-utils.js
+│   │   └── validation-utils.js
+│   │
+│   └── scripts/                  # Scripts principales
+│       ├── app.js               # Inicialización de la app
+│       └── main.js              # Script principal
+│
+├── database/                     # Scripts y esquemas de BD
+│   ├── schema.sql               # Esquema de Supabase
+│   ├── seed-data.sql           # Datos de prueba
+│   └── migrations/             # Migraciones
+│       └── 001_initial_schema.sql
+│
+├── docs/                        # Documentación
+│   ├── api.md
+│   ├── deployment.md
+│   └── user-guide.md
+│
+├── tests/                       # Tests (para el futuro)
+│   ├── unit/
+│   └── integration/
+│
+└── backup/                      # Respaldos y archivos legacy
+    ├── horarios_completo_2025-09-15 (1).json
+    ├── pendiente.txt
+    └── debug-config.js

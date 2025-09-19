@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Datos - Gestor de Horarios</title>
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="stylesheet" href="../../styles/pages/gestion-datos.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Gestión de Datos</h1>
+                <div class="user-info">
+                    <span>Centro de Prueba</span>
+                    <button onclick="window.location.href='/index.html'" class="btn btn-secondary">Volver</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="management-main">
+            <div class="management-grid">
+                <div class="management-card">
+                    <h3>Profesores</h3>
+                    <p>Gestionar la lista de profesores del centro</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="showTeachers()">Ver Profesores</button>
+                        <button class="btn btn-success" onclick="addTeacher()">Añadir Profesor</button>
+                    </div>
+                </div>
+                
+                <div class="management-card">
+                    <h3>Grupos</h3>
+                    <p>Gestionar los grupos y clases del centro</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="showGroups()">Ver Grupos</button>
+                        <button class="btn btn-success" onclick="addGroup()">Añadir Grupo</button>
+                    </div>
+                </div>
+                
+                <div class="management-card">
+                    <h3>Asignaturas</h3>
+                    <p>Gestionar las asignaturas del centro</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="showSubjects()">Ver Asignaturas</button>
+                        <button class="btn btn-success" onclick="addSubject()">Añadir Asignatura</button>
+                    </div>
+                </div>
+                
+                <div class="management-card">
+                    <h3>Horarios</h3>
+                    <p>Gestionar los horarios y asignaciones</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="showSchedules()">Ver Horarios</button>
+                        <button class="btn btn-success" onclick="addSchedule()">Añadir Clase</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="dataDisplay" class="data-display">
+                <h3>Datos del Centro</h3>
+                <p>Selecciona una opción del menú para ver y gestionar los datos.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Datos de prueba
+        const mockData = {
+            teachers: [
+                { id: 'MAR', name: 'María García', email: 'maria@centro.edu' },
+                { id: 'JUA', name: 'Juan Pérez', email: 'juan@centro.edu' },
+                { id: 'ANA', name: 'Ana López', email: 'ana@centro.edu' },
+                { id: 'CAR', name: 'Carlos Ruiz', email: 'carlos@centro.edu' }
+            ],
+            groups: [
+                { id: '1A', name: 'Primero A' },
+                { id: '1B', name: 'Primero B' },
+                { id: '2A', name: 'Segundo A' },
+                { id: '3A', name: 'Tercero A' }
+            ],
+            subjects: [
+                { id: 'MAT', name: 'Matemáticas' },
+                { id: 'LEN', name: 'Lengua' },
+                { id: 'CN', name: 'Ciencias Naturales' },
+                { id: 'EF', name: 'Educación Física' }
+            ],
+            schedules: [
+                { teacher: 'María García', group: 'Primero A', subject: 'Matemáticas', day: 'Lunes', time: '09:00-10:00' },
+                { teacher: 'Juan Pérez', group: 'Segundo A', subject: 'Lengua', day: 'Lunes', time: '09:00-10:00' },
+                { teacher: 'Ana López', group: 'Primero B', subject: 'Ciencias Naturales', day: 'Martes', time: '10:00-11:00' }
+            ]
+        };
+
+        function showTeachers() {
+            const display = document.getElementById('dataDisplay');
+            let html = '<h3>Profesores</h3><div class="data-table">';
+            html += '<table><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Acciones</th></tr>';
+            
+            mockData.teachers.forEach(teacher => {
+                html += `<tr>
+                    <td>${teacher.id}</td>
+                    <td>${teacher.name}</td>
+                    <td>${teacher.email}</td>
+                    <td><button class="btn btn-sm">Editar</button></td>
+                </tr>`;
+            });
+            
+            html += '</table></div>';
+            display.innerHTML = html;
+        }
+
+        function showGroups() {
+            const display = document.getElementById('dataDisplay');
+            let html = '<h3>Grupos</h3><div class="data-table">';
+            html += '<table><tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr>';
+            
+            mockData.groups.forEach(group => {
+                html += `<tr>
+                    <td>${group.id}</td>
+                    <td>${group.name}</td>
+                    <td><button class="btn btn-sm">Editar</button></td>
+                </tr>`;
+            });
+            
+            html += '</table></div>';
+            display.innerHTML = html;
+        }
+
+        function showSubjects() {
+            const display = document.getElementById('dataDisplay');
+            let html = '<h3>Asignaturas</h3><div class="data-table">';
+            html += '<table><tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr>';
+            
+            mockData.subjects.forEach(subject => {
+                html += `<tr>
+                    <td>${subject.id}</td>
+                    <td>${subject.name}</td>
+                    <td><button class="btn btn-sm">Editar</button></td>
+                </tr>`;
+            });
+            
+            html += '</table></div>';
+            display.innerHTML = html;
+        }
+
+        function showSchedules() {
+            const display = document.getElementById('dataDisplay');
+            let html = '<h3>Horarios</h3><div class="data-table">';
+            html += '<table><tr><th>Profesor</th><th>Grupo</th><th>Asignatura</th><th>Día</th><th>Hora</th><th>Acciones</th></tr>';
+            
+            mockData.schedules.forEach(schedule => {
+                html += `<tr>
+                    <td>${schedule.teacher}</td>
+                    <td>${schedule.group}</td>
+                    <td>${schedule.subject}</td>
+                    <td>${schedule.day}</td>
+                    <td>${schedule.time}</td>
+                    <td><button class="btn btn-sm">Editar</button></td>
+                </tr>`;
+            });
+            
+            html += '</table></div>';
+            display.innerHTML = html;
+        }
+
+        function addTeacher() {
+            alert('Funcionalidad para añadir profesor en desarrollo');
+        }
+
+        function addGroup() {
+            alert('Funcionalidad para añadir grupo en desarrollo');
+        }
+
+        function addSubject() {
+            alert('Funcionalidad para añadir asignatura en desarrollo');
+        }
+
+        function addSchedule() {
+            alert('Funcionalidad para añadir clase en desarrollo');
+        }
+    </script>
+</body>
+</html>

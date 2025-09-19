@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario Completo - Gestor de Horarios</title>
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="stylesheet" href="../../styles/pages/horario-completo.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Horario Completo</h1>
+                <div class="user-info">
+                    <span>Centro de Prueba</span>
+                    <button onclick="window.location.href='/index.html'" class="btn btn-secondary">Volver</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-content">
+                <button id="printBtn" class="btn btn-primary">🖨️ Imprimir</button>
+                <button id="exportBtn" class="btn btn-secondary">📄 Exportar</button>
+                <button id="editBtn" class="btn btn-success">✏️ Editar</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="schedule-main">
+            <div id="scheduleContainer" class="schedule-container">
+                <!-- El horario se generará aquí -->
+            </div>
+        </main>
+    </div>
+
+    <script src="horario-completo.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initFullSchedulePage === 'function') {
+                initFullSchedulePage();
+            }
+        });
+    </script>
+</body>
+</html>
